@@ -11,19 +11,19 @@ class DataUser(APIView):
     """Отдаём данные пользователя/
     создаем профиль пользователя"""
 
-    def get(self, user: int = None) -> Response:
+    def get(self, request):
+        user = request.query_params.get('user')
         if user:
             return Response(get_user_data(user), status=status.HTTP_200_OK)
         return Response({'message': 'Передайте user'}, status=status.HTTP_404_NOT_FOUND)
 
-    def post(self, request) -> Response:
-        print(request.data)
+    def post(self, request):
         check, data = add_user_data(request.data)
         if check:
             return Response({'message': f'Запись {data} добавлена'}, status=status.HTTP_201_CREATED)
         return Response({'message': f'Ошибка: {data}'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request) -> Response:
+    def put(self, request):
         pass
 
 
@@ -31,12 +31,14 @@ class WordForLearn(APIView):
     """Отдаём слово, которое еще не изучалось/
     добавляем новые слова в словарь"""
 
-    def get(self, user: int = None, name_category: str = None) -> Response:
+    def get(self, request):
+        user = request.query_params.get('user')
+        name_category = request.query_params.get('name_category')
         if user and name_category:
-            return Response(get_word_for_learn(user, name_category).data, status=status.HTTP_200_OK)
+            return Response(get_word_for_learn(user), status=status.HTTP_200_OK)
         return Response({'message': 'Передайте user и название категории'}, status=status.HTTP_404_NOT_FOUND)
 
-    def post(self, request) -> Response:
+    def post(self, request):
         check, data = add_word_for_learn(request.data)
         if check:
             return Response({'message': f'Запись {data} добавлена'}, status=status.HTTP_201_CREATED)
@@ -47,16 +49,18 @@ class RepetitionWord(APIView):
     """Отдаем изученное наполовину слово или для повторения/
      добавляем изученное наполовину слово"""
 
-    def get(self, user: int = None, is_learn: bool = False):
+    def get(self, request):
+        user = request.query_params.get('user')
+        is_learn = request.query_params.get('is_learn')
         if user:
             return Response(get_repetition_word(user, is_learn), status=status.HTTP_200_OK)
         return Response({'message': 'Передайте user'}, status=status.HTTP_404_NOT_FOUND)
 
-    def post(self, request) -> Response:
+    def post(self, request):
         check, data = add_word_studied(request.data)
         if check:
             return Response({'message': f'Запись {data} добавлена'}, status=status.HTTP_201_CREATED)
         return Response({'message': f'Ошибка: {data}'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request) -> Response:
+    def put(self, request):
         pass

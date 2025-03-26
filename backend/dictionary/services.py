@@ -21,7 +21,7 @@ def get_word_for_learn(user: int = None, name_category: str = None) -> str:
     words_in_learn = models.UserDictionaries.objects.filter(user=user)
     if words_in_learn:
         word = models.Dictionary.objects.annotate(word=Subquery(words_in_learn)).filter(
-            category__name=name_category).values('en_word', 'ru_word').first()
+            category__name=name_category).values('en_word', 'ru_word', 'category').first()
     else:
         word = models.Dictionary.objects.select_related('en_word', 'ru_word', 'category').all()[:1]
     return DictionarySerializer(word, many=True).data
