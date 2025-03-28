@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .services import get_user_data, add_user_data, \
-    get_word_for_learn, add_word_for_learn, get_repetition_word, \
+    get_word_for_study, add_word_for_study, get_repetition_word, \
     add_word_studied
 
 
@@ -27,7 +27,7 @@ class DataUser(APIView):
         pass
 
 
-class WordForLearn(APIView):
+class WordForStudy(APIView):
     """Отдаём слово, которое еще не изучалось/
     добавляем новые слова в словарь"""
 
@@ -35,11 +35,11 @@ class WordForLearn(APIView):
         user = request.query_params.get('user')
         name_category = request.query_params.get('name_category')
         if user and name_category:
-            return Response(get_word_for_learn(user), status=status.HTTP_200_OK)
+            return Response(get_word_for_study(user), status=status.HTTP_200_OK)
         return Response({'message': 'Передайте user и название категории'}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
-        check, data = add_word_for_learn(request.data)
+        check, data = add_word_for_study(request.data)
         if check:
             return Response({'message': f'Запись {data} добавлена'}, status=status.HTTP_201_CREATED)
         return Response({'message': f'Ошибка: {data}'}, status=status.HTTP_400_BAD_REQUEST)

@@ -1,0 +1,1 @@
+API_URL_NEW_WORD = "127.0.0.1:8000/new_word"

@@ -17,7 +17,7 @@ def add_user_data(data: str = None) -> tuple[bool, str]:
     return False, serializer_data_user.errors
 
 
-def get_word_for_learn(user: int = None, name_category: str = None) -> str:
+def get_word_for_study(user: int = None, name_category: str = None) -> str:
     words_in_learn = models.UserDictionaries.objects.filter(user=user)
     if words_in_learn:
         word = models.Dictionary.objects.annotate(word=Subquery(words_in_learn)).filter(
@@ -27,7 +27,7 @@ def get_word_for_learn(user: int = None, name_category: str = None) -> str:
     return DictionarySerializer(word, many=True).data
 
 
-def add_word_for_learn(data: str = None) -> tuple[bool, str]:
+def add_word_for_study(data: str = None) -> tuple[bool, str]:
     serializer_new_word: ModelSerializer = DictionarySerializer(data=data)
     if serializer_new_word.is_valid():
         serializer_new_word.save()
