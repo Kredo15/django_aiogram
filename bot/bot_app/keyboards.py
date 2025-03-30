@@ -12,12 +12,20 @@ def get_menu_inline():
 
 
 def get_button_keyboard():
-    button_know = KeyboardButton('Знаю')
-    button_dont_know = KeyboardButton('Не знаю')
-    button_stop = KeyboardButton('Закончить')
+    kb = [
+        [
+            KeyboardButton(text='Знаю')
+            ],
+        [
+            KeyboardButton(text='Не знаю')
+            ],
+        [
+            KeyboardButton(text='Закончить')
+            ],
+        ]
 
-    button_keyboard = ReplyKeyboardMarkup()
-    button_keyboard.add(button_know)
-    button_keyboard.add(button_dont_know)
-    button_keyboard.add(button_stop)
+    button_keyboard = ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True
+    )
     return button_keyboard

@@ -20,11 +20,12 @@ def add_user_data(data: str = None) -> tuple[bool, str]:
 def get_word_for_study(user: int = None, name_category: str = None) -> str:
     words_in_learn = models.UserDictionaries.objects.filter(user=user)
     if words_in_learn:
-        word = models.Dictionary.objects.annotate(word=Subquery(words_in_learn)).filter(
-            category__name=name_category).values('en_word', 'ru_word', 'category').first()
+        word = models.Dictionary.objects.annotate(word=Subquery(words_in_learn)).all(
+            category__name=name_category).values('en_word', 'ru_word', 'category').all()[:1]
     else:
         word = models.Dictionary.objects.select_related('en_word', 'ru_word', 'category').all()[:1]
-    return DictionarySerializer(word, many=True).data
+    serialize = DictionarySerializer(word, many=True)
+    return serialize.data
 
 
 def add_word_for_study(data: str = None) -> tuple[bool, str]:

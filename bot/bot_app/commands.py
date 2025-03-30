@@ -23,11 +23,9 @@ async def start_command(message: Message):
 
 @dp.callback_query(F.data == "new_word")
 async def send_word_study(callback: CallbackQuery, state: FSMContext):
-    await WordsStudy.new_word.set_parent()
-    res = get_new_word(callback.message.from_user.id, 'популярные слова')
-    data = await state.get_data()
-    data['step'] = 1
-    en_word = res.get('en_word').get('word')
-    ru_word = res.get('ru_word').get('word')
-    await callback.message.reply(f"{en_word} - {ru_word}", reply_markup=get_button_keyboard())
+    res = await get_new_word(callback.message.from_user.id, 'популярные слова')
+    en_word = res[0].get('en_word').get('word')
+    ru_word = res[0].get('ru_word').get('word')
+    await callback.message.answer(f"{en_word} - {ru_word}", reply_markup=get_button_keyboard())
+    await state.set_state(WordsStudy.new_word)
 
