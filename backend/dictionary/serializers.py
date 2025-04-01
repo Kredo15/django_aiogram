@@ -34,7 +34,7 @@ class RuwordsSerializer(ModelSerializer):
 class CategoriesSerializer(ModelSerializer):
     class Meta:
         model = Categories
-        fields = ["name"]
+        fields = ("name",)
 
 
 class DictionarySerializer(ModelSerializer):
@@ -44,7 +44,7 @@ class DictionarySerializer(ModelSerializer):
 
     class Meta:
         model = Dictionary
-        fields = ('en_word', 'ru_word', 'category',)
+        fields = ['en_word', 'ru_word', 'category']
 
     def create(self, validated_data):
         return Dictionary(**validated_data)

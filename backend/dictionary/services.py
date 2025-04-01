@@ -1,7 +1,8 @@
 from django.db.models import Subquery
 from . import models
 from rest_framework.serializers import ModelSerializer
-from .serializers import DictionarySerializer, ProfileSerializer, UserDictionariesSerializer
+from .serializers import DictionarySerializer, ProfileSerializer,\
+    UserDictionariesSerializer, CategoriesSerializer
 
 
 def get_user_data(user: int = None) -> str:
@@ -47,3 +48,16 @@ def add_word_studied(data: str = None) -> tuple[bool, str]:
         serializer_word_studied.save()
         return True, serializer_word_studied.data
     return False, serializer_word_studied.errors
+
+
+def get_all_categories() -> str:
+    categories = models.Categories.objects.all()
+    return CategoriesSerializer(categories, many=True).data
+
+
+def add_category(data: str = None) -> tuple[bool, str]:
+    serializer_category: ModelSerializer = CategoriesSerializer(data=data)
+    if serializer_category.is_valid():
+        serializer_category.save()
+        return True, serializer_category.data
+    return False, serializer_category.errors

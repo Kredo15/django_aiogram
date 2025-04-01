@@ -20,6 +20,7 @@ from dictionary import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('categories/', views.Categories.as_view()),
     path('new_word/', views.WordForStudy.as_view()),
     path('user/', views.DataUser.as_view()),
     path('repetition/', views.RepetitionWord.as_view())

@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 
 from .services import get_user_data, add_user_data, \
     get_word_for_study, add_word_for_study, get_repetition_word, \
-    add_word_studied
+    add_word_studied, get_all_categories, add_category
 
 
 class DataUser(APIView):
@@ -25,6 +25,18 @@ class DataUser(APIView):
 
     def put(self, request):
         pass
+
+
+class Categories(APIView):
+    """Отдаём все категории"""
+    def get(self, request):
+        return Response(get_all_categories(), status=status.HTTP_200_OK)
+
+    def post(self, request):
+        check, data = add_category(request.data)
+        if check:
+            return Response({'message': f'Запись {data} добавлена'}, status=status.HTTP_201_CREATED)
+        return Response({'message': f'Ошибка: {data}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class WordForStudy(APIView):
