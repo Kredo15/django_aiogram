@@ -34,7 +34,7 @@ class RuwordsSerializer(ModelSerializer):
 class CategoriesSerializer(ModelSerializer):
     class Meta:
         model = Categories
-        fields = ("name",)
+        fields = ["name"]
 
 
 class DictionarySerializer(ModelSerializer):

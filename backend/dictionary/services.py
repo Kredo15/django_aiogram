@@ -25,8 +25,8 @@ def get_word_for_study(user: int = None, name_category: str = None) -> str:
             category__name=name_category).values('en_word', 'ru_word', 'category').all()[:1]
     else:
         word = models.Dictionary.objects.select_related('en_word', 'ru_word', 'category').all()[:1]
-    serialize = DictionarySerializer(word, many=True)
-    return serialize.data
+    serialize_in_learn: ModelSerializer = DictionarySerializer(word, many=True)
+    return serialize_in_learn.data
 
 
 def add_word_for_study(data: str = None) -> tuple[bool, str]:

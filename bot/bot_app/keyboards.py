@@ -29,10 +29,3 @@ def get_button_keyboard():
         resize_keyboard=True
     )
     return button_keyboard
-
-
-def get_switch_button():
-    switch_button = [[InlineKeyboardButton(text="Нажми меня",
-                                           switch_inline_query_current_chat="categories")]]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=switch_button)
-    return keyboard
