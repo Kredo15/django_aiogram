@@ -46,8 +46,13 @@ class WordForStudy(APIView):
     def get(self, request):
         user = request.query_params.get('user')
         name_category = request.query_params.get('name_category')
+        pk = request.query_params.get('pk')
         if user and name_category:
-            return Response(get_word_for_study(user), status=status.HTTP_200_OK)
+            return Response(get_word_for_study(
+                user=user,
+                name_category=name_category,
+                pk=pk
+            ), status=status.HTTP_200_OK)
         return Response({'message': 'Передайте user и название категории'}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
