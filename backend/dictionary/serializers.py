@@ -61,7 +61,7 @@ class DictionarySerializer(ModelSerializer):
 
     class Meta:
         model = Dictionary
-        fields = ['en_word', 'ru_word', 'category']
+        fields = '__all__'
 
     def create(self, validated_data):
         en_word_data, _ = Enwords.objects.get_or_create(
@@ -77,7 +77,6 @@ class DictionarySerializer(ModelSerializer):
 
 
 class UserDictionariesSerializer(ModelSerializer):
-
     class Meta:
         model = UserDictionaries
         fields = '__all__'

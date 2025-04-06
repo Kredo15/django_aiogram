@@ -46,7 +46,7 @@ class WordForStudy(APIView):
     def get(self, request):
         user = request.query_params.get('user')
         name_category = request.query_params.get('name_category')
-        pk = request.query_params.get('pk')
+        pk = int(request.query_params.get('pk'))
         if user and name_category:
             return Response(get_word_for_study(
                 user=user,

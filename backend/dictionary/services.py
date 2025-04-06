@@ -25,16 +25,14 @@ def add_user_data(data: str = None
 
 def get_word_for_study(user: int = None,
                        name_category: str = None,
-                       pk: int = 1
+                       pk: int = 0
                        ) -> str:
     words_in_learn = models.UserDictionaries.objects.filter(user=user)
     if words_in_learn:
         word = models.Dictionary.objects.annotate(
                 word=Subquery(words_in_learn)
             ).all(
-                category__name=name_category).values(
-            'en_word', 'ru_word', 'category'
-        ).filter(pk__gt=pk).first()
+                category__name=name_category).filter(pk__gt=pk).first()
     else:
         word = models.Dictionary.objects.select_related(
             'en_word', 'ru_word', 'category'

@@ -21,20 +21,26 @@ async def get_inline_with_categories() -> list[InlineQueryResultArticle]:
     return results
 
 
-async def get_word_for_learning(user_id: int, name_category: str) -> tuple[str, str]:
-    res = await get_new_word(user_id, name_category)
+async def get_word_for_learning(user_id: int,
+                                name_category: str,
+                                pk_old: int
+                                ) -> tuple[int, str, str]:
+    res = await get_new_word(user_id, name_category, pk_old)
+    pk_new = res.get('id')
     en_word = res.get('en_word').get('word')
     ru_word = res.get('ru_word').get('word')
-    return en_word, ru_word
+    return pk_new, en_word, ru_word
 
 
 async def bot_send_message_new_word(state: FSMContext,
-                                    user_id: int,
-                                    name_category: str
+                                    user_id: int = None,
+                                    name_category: str = None,
+                                    pk_old: int = 0
                                     ) -> None:
-    en_word, ru_word = await get_word_for_learning(user_id=user_id,
-                                                   name_category=name_category)
-    await state.update_data(new_word=dict(en_word=en_word, ru_word=ru_word))
+    pk_new, en_word, ru_word = await get_word_for_learning(user_id=user_id,
+                                                           name_category=name_category,
+                                                           pk_old=pk_old)
+    await state.update_data(new_word=dict(pk=pk_new, en_word=en_word, ru_word=ru_word))
     await bot.send_message(chat_id=user_id,
                            text=f'{en_word}<span class="tg-spoiler"> - {ru_word}</span>',
                            parse_mode='html',

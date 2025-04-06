@@ -52,7 +52,8 @@ async def study_word(message: Message, state: FSMContext):
     else:
         await bot_send_message_new_word(state=state,
                                         user_id=message.from_user.id,
-                                        name_category=data['name_category'])
+                                        name_category=data['name_category'],
+                                        pk_old=data['pk'])
 
 
 @dp.callback_query(F.data == "new_word")
