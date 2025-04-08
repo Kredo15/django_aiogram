@@ -1,11 +1,21 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, \
-                    ReplyKeyboardMarkup, KeyboardButton
+    ReplyKeyboardMarkup, KeyboardButton
+from .button_signature import STUDY_NEW_WORD, HALF_LEARNED_WORD, KNOW, \
+    STUDY, STOP_STUDY, START, MENU
 
 
-def get_menu_inline() -> InlineKeyboardMarkup:
+def get_inline_menu() -> InlineKeyboardMarkup:
     buttons = [
-        [InlineKeyboardButton(text="Изучать новые слова", switch_inline_query_current_chat="categories")],
-        [InlineKeyboardButton(text="Слова выученные наполовину", callback_data="repetition_word")]
+        [InlineKeyboardButton(text=MENU, callback_data="menu")],
+    ]
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    return keyboard
+
+
+def get_inline_actions() -> InlineKeyboardMarkup:
+    buttons = [
+        [InlineKeyboardButton(text=STUDY_NEW_WORD, switch_inline_query_current_chat="categories")],
+        [InlineKeyboardButton(text=HALF_LEARNED_WORD, callback_data="repetition_word")]
     ]
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
     return keyboard
@@ -14,15 +24,15 @@ def get_menu_inline() -> InlineKeyboardMarkup:
 def get_button_new_word() -> ReplyKeyboardMarkup:
     kb = [
         [
-            KeyboardButton(text='😎 Знаю')
-            ],
+            KeyboardButton(text=KNOW)
+        ],
         [
-            KeyboardButton(text='🤷‍♀️ Изучать')
-            ],
+            KeyboardButton(text=STUDY)
+        ],
         [
-            KeyboardButton(text='✋ Закончить упражнение')
-            ],
-        ]
+            KeyboardButton(text=STOP_STUDY)
+        ],
+    ]
 
     button_keyboard = ReplyKeyboardMarkup(
         keyboard=kb,
@@ -35,10 +45,10 @@ def get_button_new_word() -> ReplyKeyboardMarkup:
 def get_button_start_study() -> ReplyKeyboardMarkup:
     kb = [
         [
-            KeyboardButton(text='🚀 Поехали')
+            KeyboardButton(text=START)
         ],
         [
-            KeyboardButton(text='✋ Закончить упражнение')
+            KeyboardButton(text=STOP_EXERCISE)
         ],
     ]
 

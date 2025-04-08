@@ -1,25 +1,42 @@
 from .app import dp
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery, InlineQuery,\
-    ChosenInlineResult
+from aiogram.types import Message, InlineQuery, ChosenInlineResult, CallbackQuery
 from aiogram import F
 from aiogram.fsm.context import FSMContext
 from .app import bot
-from .keyboards import get_menu_inline, get_button_start_study
+from .keyboards import get_inline_actions, get_button_start_study,\
+    get_inline_menu
 from .state import WordsStudy
 from .services import get_inline_with_categories, bot_send_message_new_word, \
     add_word_in_dict_state, get_final_message_for_study
+from .button_signature import STUDY, STOP_STUDY
 
 
 @dp.message(Command(commands=["help"]))
-async def help_command(message: Message):
-    await message.answer('Hello!\nI help you remember new words!')
+async def help_command(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state is None:
+        await message.answer('Hello!\nI help you remember new words!',
+                             reply_markup=get_inline_menu())
+    else:
+        await message.answer('Мы не закончили упражнение ☝️')
 
 
 @dp.message(Command(commands=["start", "menu"]))
-async def start_command(message: Message):
-    # проверить профиль пользователя
-    await message.answer('Выбери действие', reply_markup=get_menu_inline())
+async def start_command(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state is None:
+        await message.answer('Выбери действие', reply_markup=get_inline_actions())
+    else:
+        await message.answer('Мы не закончили упражнение ☝️')
+
+
+@dp.callback_query(F.data == "menu")
+async def choose_category(callback: CallbackQuery, state: FSMContext):
+    await bot.delete_message(chat_id=callback.message.chat.id,
+                             message_id=callback.message.message_id)
+    await bot.send_message(chat_id=callback.message.chat.id, text='Выбери действие',
+                           reply_markup=get_inline_actions())
 
 
 @dp.inline_query(F.query == "categories")
@@ -40,12 +57,13 @@ async def start_study(chosen_result: ChosenInlineResult, state: FSMContext):
                                     name_category=chosen_result.result_id)
 
 
-@dp.message(WordsStudy.new_word, F.text == "Изучать")
+@dp.message(WordsStudy.new_word, F.text == STUDY)
 async def study_word(message: Message, state: FSMContext):
     data = await state.get_data()
     data_update = add_word_in_dict_state(data=data)
     await state.update_data(data_update)
     await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id-1)
     if len(data_update.get('study')) == 5:
         await message.answer(get_final_message_for_study(data_update.get('study')),
                              reply_markup=get_button_start_study())
@@ -56,23 +74,11 @@ async def study_word(message: Message, state: FSMContext):
                                         pk_old=data['pk'])
 
 
-@dp.callback_query(F.data == "new_word")
-async def choose_category(
-        callback: CallbackQuery, state: FSMContext
-):
-    # await bot.send_message(chat_id=callback.message.chat.id, text='afeq', reply_markup=get_switch_button())
-    await state.set_state(WordsStudy.new_word)
-    await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-
-
-@dp.callback_query(F.data == "popular_word")
-async def send_message_beginning_study(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(f"Great! let's start")
-    data = await state.get_data()
-    data["category"] = callback.message.text
-    await state.update_data(data)
-    # res = await get_new_word(callback.message.from_user.id, 'популярные слова')
-    # en_word = res.get('en_word').get('word')
-    # ru_word = res.get('ru_word').get('word')
-    # await callback.message.answer(f"{en_word} - {ru_word}", reply_markup=get_button_keyboard())
-    # await state.set_state(WordsStudy.new_word)
+@dp.message(F.text == STOP_STUDY)
+async def stop_study(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state is None:
+        await message.answer('Мы не начинали упражнение 🤷‍')
+    else:
+        await state.clear()
+        await message.answer('Ок, приходи за новыми знаниями! 🎓')

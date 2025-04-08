@@ -40,7 +40,7 @@ async def bot_send_message_new_word(state: FSMContext,
     pk_new, en_word, ru_word = await get_word_for_learning(user_id=user_id,
                                                            name_category=name_category,
                                                            pk_old=pk_old)
-    await state.update_data(new_word=dict(pk=pk_new, en_word=en_word, ru_word=ru_word))
+    await state.update_data(pk=pk_new, new_word=dict(en_word=en_word, ru_word=ru_word))
     await bot.send_message(chat_id=user_id,
                            text=f'{en_word}<span class="tg-spoiler"> - {ru_word}</span>',
                            parse_mode='html',
@@ -51,9 +51,11 @@ def add_word_in_dict_state(data: dict) -> dict:
     if data.get('new_word'):
         try:
             update_data = {len(data.get('study')): copy.deepcopy(data['new_word'])}
+        except TypeError:
+            update_data = {0: copy.deepcopy(data['new_word'])}
+        try:
             data['study'].update(update_data)
         except KeyError:
-            update_data = {0: copy.deepcopy(data['new_word'])}
             data['study'] = update_data
         data['new_word'] = None
         return copy.deepcopy(data)
