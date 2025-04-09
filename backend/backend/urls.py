@@ -23,5 +23,5 @@ urlpatterns = [
     path('categories/', views.Categories.as_view()),
     path('new_word/', views.WordForStudy.as_view()),
     path('user/', views.DataUser.as_view()),
-    path('repetition/', views.RepetitionWord.as_view())
+    path('studied_word/', views.WordFromUserDictionary.as_view())
 ]

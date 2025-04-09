@@ -48,7 +48,7 @@ def get_button_start_study() -> ReplyKeyboardMarkup:
             KeyboardButton(text=START)
         ],
         [
-            KeyboardButton(text=STOP_EXERCISE)
+            KeyboardButton(text=STOP_STUDY)
         ],
     ]
 

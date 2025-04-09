@@ -2,7 +2,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
 from .app import bot
 from .keyboards import get_button_new_word
-from .data_fetcher import get_new_word, get_categories
+from .data_fetcher import get_new_word, get_categories, add_studied_word
 import copy
 
 
@@ -32,6 +32,20 @@ async def get_word_for_learning(user_id: int,
     return pk_new, en_word, ru_word
 
 
+async def add_studied_word_in_user_dict(user_id: int, data: dict) -> None:
+    data_for_send = {
+        "user": user_id,
+        "word": data['pk'],
+        "translate_choose_ru": True,
+        "translate_choose_en": True,
+        "translate_write_ru": True,
+        "translate_write_en": True,
+        "write_word_using_audio": True,
+        "is_learn": True
+    }
+    await add_studied_word(data_for_send)
+
+
 async def bot_send_message_new_word(state: FSMContext,
                                     user_id: int = None,
                                     name_category: str = None,
@@ -47,7 +61,7 @@ async def bot_send_message_new_word(state: FSMContext,
                            reply_markup=get_button_new_word())
 
 
-def add_word_in_dict_state(data: dict) -> dict:
+def get_data_after_study(data: dict) -> dict:
     if data.get('new_word'):
         try:
             update_data = {len(data.get('study')): copy.deepcopy(data['new_word'])}
@@ -58,7 +72,13 @@ def add_word_in_dict_state(data: dict) -> dict:
         except KeyError:
             data['study'] = update_data
         data['new_word'] = None
-        return copy.deepcopy(data)
+        return data
+
+
+def get_data_after_skipping(data: dict) -> dict:
+    if data.get('new_word'):
+        data['new_word'] = None
+        return data
 
 
 def get_final_message_for_study(data: dict) -> str:

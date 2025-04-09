@@ -4,12 +4,13 @@ from aiogram.types import Message, InlineQuery, ChosenInlineResult, CallbackQuer
 from aiogram import F
 from aiogram.fsm.context import FSMContext
 from .app import bot
-from .keyboards import get_inline_actions, get_button_start_study,\
+from .keyboards import get_inline_actions, get_button_start_study, \
     get_inline_menu
 from .state import WordsStudy
 from .services import get_inline_with_categories, bot_send_message_new_word, \
-    add_word_in_dict_state, get_final_message_for_study
-from .button_signature import STUDY, STOP_STUDY
+    get_data_after_study, get_data_after_skipping, get_final_message_for_study, \
+    add_studied_word_in_user_dict
+from .button_signature import STUDY, STOP_STUDY, KNOW
 
 
 @dp.message(Command(commands=["help"]))
@@ -58,9 +59,9 @@ async def start_study(chosen_result: ChosenInlineResult, state: FSMContext):
 
 
 @dp.message(WordsStudy.new_word, F.text == STUDY)
-async def study_word(message: Message, state: FSMContext):
+async def word_study(message: Message, state: FSMContext):
     data = await state.get_data()
-    data_update = add_word_in_dict_state(data=data)
+    data_update = get_data_after_study(data=data)
     await state.update_data(data_update)
     await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id-1)
@@ -72,6 +73,13 @@ async def study_word(message: Message, state: FSMContext):
                                         user_id=message.from_user.id,
                                         name_category=data['name_category'],
                                         pk_old=data['pk'])
+
+
+@dp.message(WordsStudy.new_word, F.text == KNOW)
+async def know_word(message: Message, state: FSMContext):
+    data = await state.get_data()
+    await add_studied_word_in_user_dict(user_id=message.from_user.id, data=data)
+    data_update = get_data_after_skipping(data=data)
 
 
 @dp.message(F.text == STOP_STUDY)

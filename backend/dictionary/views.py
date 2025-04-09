@@ -62,9 +62,9 @@ class WordForStudy(APIView):
         return Response({'message': f'Ошибка: {data}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RepetitionWord(APIView):
+class WordFromUserDictionary(APIView):
     """Отдаем изученное наполовину слово или для повторения/
-     добавляем изученное наполовину слово"""
+     добавляем изученное слово"""
 
     def get(self, request):
         user = request.query_params.get('user')

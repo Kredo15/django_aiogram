@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     path('new_word/', views.WordForStudy.as_view()),
     path('user/', views.DataUser.as_view()),
-    path('repetition/', views.RepetitionWord.as_view())
+    path('studied_word/', views.WordFromUserDictionary.as_view())
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

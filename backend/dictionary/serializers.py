@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+from django.contrib.auth.models import User
 from .models import Dictionary, Enwords, Ruwords, Categories, Profile, Ratings, UserDictionaries
 
 
@@ -16,15 +17,31 @@ class ProfileSerializer(ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['name', 'count_words', 'rating']
+        fields = ['user', 'count_words', 'rating']
 
     def create(self, validated_data):
         rating_data, _ = Ratings.objects.get_or_create(
             name=validated_data.get("rating").get("name"))
-        post = Profile(name=validated_data.get("name"),
+        post = Profile(user=validated_data.get("name"),
                        count_words=validated_data.get("count_words"),
                        rating=rating_data)
         return post
+
+
+class UserSerializer(ModelSerializer):
+    profile = ProfileSerializer()
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'profile']
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            profile=validated_data['profile']
+        )
+        return user
 
 
 class EnwordsSerializer(ModelSerializer):
@@ -77,6 +94,7 @@ class DictionarySerializer(ModelSerializer):
 
 
 class UserDictionariesSerializer(ModelSerializer):
+
     class Meta:
         model = UserDictionaries
         fields = '__all__'
