@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from django.contrib.auth.models import User
-from .models import Dictionary, Enwords, Ruwords, Categories, Profile, Ratings, UserDictionaries
+from .models import Dictionary, Enwords, Ruwords, \
+    Categories, Profile, Ratings, UserDictionaries
 
 
 class RatingsSerializer(ModelSerializer):
@@ -12,7 +13,17 @@ class RatingsSerializer(ModelSerializer):
         return Ratings(**validated_data)
 
 
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name']
+
+    def create(self, validated_data):
+        return User(**validated_data)
+
+
 class ProfileSerializer(ModelSerializer):
+    user = UserSerializer()
     rating = RatingsSerializer()
 
     class Meta:
@@ -20,28 +31,18 @@ class ProfileSerializer(ModelSerializer):
         fields = ['user', 'count_words', 'rating']
 
     def create(self, validated_data):
-        rating_data, _ = Ratings.objects.get_or_create(
-            name=validated_data.get("rating").get("name"))
-        post = Profile(user=validated_data.get("name"),
-                       count_words=validated_data.get("count_words"),
-                       rating=rating_data)
-        return post
-
-
-class UserSerializer(ModelSerializer):
-    profile = ProfileSerializer()
-
-    class Meta:
-        model = User
-        fields = ['username', 'first_name', 'profile']
-
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            first_name=validated_data['first_name'],
-            profile=validated_data['profile']
+        user_data = User.objects.create_user(
+            username=validated_data.get("name"))
+        count = UserDictionariesSerializer.objects.filter(
+            is_learn=True).count()
+        rating_data, _ = Ratings.objects.filter(
+            criteria__lte=count).order_by("criteria").reverse().first()
+        post = Profile(
+            user=user_data,
+            count_words=count,
+            rating=rating_data
         )
-        return user
+        return post
 
 
 class EnwordsSerializer(ModelSerializer):
@@ -87,17 +88,34 @@ class DictionarySerializer(ModelSerializer):
             word=validated_data.get("ru_word").get("word"))
         category_data, _ = Categories.objects.get_or_create(
             name=validated_data.get("category").get("name"))
-        post = Dictionary.objects.create(en_word=en_word_data,
-                                         ru_word=ru_word_data,
-                                         category=category_data)
+        post = Dictionary.objects.create(
+            en_word=en_word_data,
+            ru_word=ru_word_data,
+            category=category_data)
         return post
 
 
 class UserDictionariesSerializer(ModelSerializer):
+    user = UserSerializer()
+    word = DictionarySerializer()
 
     class Meta:
         model = UserDictionaries
         fields = '__all__'
+        exclude = ['id', 'is_learn']
 
     def create(self, validated_data):
-        return UserDictionaries(**validated_data)
+        user_data = User.objects.get_by_natural_key(
+            username=validated_data.get("name"))
+        word_data = Dictionary.objects.get(
+            pk=validated_data.get("pk"))
+        post = UserDictionaries(
+            user=user_data,
+            word=word_data,
+            translate_choose_ru=validated_data.get("translate_choose_ru"),
+            translate_choose_en=validated_data.get("translate_choose_en"),
+            translate_write_ru=validated_data.get("translate_write_ru"),
+            translate_write_en=validated_data.get("translate_write_en"),
+            write_word_using_audio=validated_data.get("write_word_using_audio")
+        )
+        return post
