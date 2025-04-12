@@ -3,8 +3,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .services import get_user_data, add_user_data, \
-    get_word_for_study, add_word_for_study, get_repetition_word, \
-    add_word_studied, get_all_categories, add_category
+    get_word_for_study, add_word_for_study, get_studied_word, \
+    add_word_studied, get_all_categories, add_category, update_user_data, \
+    update_word_studied
 
 
 class DataUser(APIView):
@@ -24,7 +25,10 @@ class DataUser(APIView):
         return Response({'message': f'Ошибка: {data}'}, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request):
-        pass
+        check, data = update_user_data(request.data)
+        if check:
+            return Response({'message': f'Запись {data} обновлена'}, status=status.HTTP_202_ACCEPTED)
+        return Response({'message': f'Ошибка: {data}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Categories(APIView):
@@ -70,7 +74,7 @@ class WordFromUserDictionary(APIView):
         user = request.query_params.get('user')
         is_learn = request.query_params.get('is_learn')
         if user:
-            return Response(get_repetition_word(user, is_learn), status=status.HTTP_200_OK)
+            return Response(get_studied_word(user, is_learn), status=status.HTTP_200_OK)
         return Response({'message': 'Передайте user'}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
@@ -80,4 +84,7 @@ class WordFromUserDictionary(APIView):
         return Response({'message': f'Ошибка: {data}'}, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request):
-        pass
+        check, data = update_word_studied(request.data)
+        if check:
+            return Response({'message': f'Запись {data} добавлена'}, status=status.HTTP_202_ACCEPTED)
+        return Response({'message': f'Ошибка: {data}'}, status=status.HTTP_400_BAD_REQUEST)

@@ -33,16 +33,17 @@ class ProfileSerializer(ModelSerializer):
     def create(self, validated_data):
         user_data = User.objects.create_user(
             username=validated_data.get("name"))
-        count = UserDictionariesSerializer.objects.filter(
-            is_learn=True).count()
-        rating_data, _ = Ratings.objects.filter(
-            criteria__lte=count).order_by("criteria").reverse().first()
-        post = Profile(
-            user=user_data,
-            count_words=count,
-            rating=rating_data
-        )
+        post = Profile(user=user_data)
         return post
+
+    def update(self, instance, validated_data):
+        instance.user = validated_data.get("name", instance.user)
+        instance.count = UserDictionaries.objects.filter(
+            is_learn=True).count()
+        instance.rating = Ratings.objects.filter(
+            criteria__lte=instance.count).order_by("criteria").reverse().first()
+        instance.save()
+        return instance
 
 
 class EnwordsSerializer(ModelSerializer):
@@ -97,7 +98,6 @@ class DictionarySerializer(ModelSerializer):
 
 class UserDictionariesSerializer(ModelSerializer):
     user = UserSerializer()
-    word = DictionarySerializer()
 
     class Meta:
         model = UserDictionaries
@@ -111,11 +111,25 @@ class UserDictionariesSerializer(ModelSerializer):
             pk=validated_data.get("pk"))
         post = UserDictionaries(
             user=user_data,
-            word=word_data,
-            translate_choose_ru=validated_data.get("translate_choose_ru"),
-            translate_choose_en=validated_data.get("translate_choose_en"),
-            translate_write_ru=validated_data.get("translate_write_ru"),
-            translate_write_en=validated_data.get("translate_write_en"),
-            write_word_using_audio=validated_data.get("write_word_using_audio")
+            word=word_data
         )
         return post
+
+    def update(self, instance, validated_data):
+        instance.translate_choose_ru = validated_data.get(
+            "translate_choose_ru", instance.translate_choose_ru
+        )
+        instance.translate_choose_en = validated_data.get(
+            "translate_choose_en", instance.translate_choose_en
+        )
+        instance.translate_write_ru = validated_data.get(
+            "translate_write_ru", instance.translate_write_ru
+        )
+        instance.translate_write_en = validated_data.get(
+            "translate_write_en", instance.translate_write_en
+        )
+        instance.write_word_using_audio = validated_data.get(
+            "write_word_using_audio", instance.write_word_using_audio
+        )
+        instance.save()
+        return instance
