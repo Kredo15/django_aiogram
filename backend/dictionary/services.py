@@ -1,15 +1,28 @@
 from django.db.models import Subquery
 from . import models
-from .serializers import DictionarySerializer, ProfileSerializer,\
-    UserDictionariesSerializer, CategoriesSerializer
+from .serializers import DictionarySerializer, ProfileSerializer, \
+    UserDictionariesSerializer, CategoriesSerializer, RatingsSerializer
+
+
+def get_all_ratings() -> str:
+    ratings_data = models.Ratings.objects.all()
+    return RatingsSerializer(ratings_data, many=True).data
+
+
+def add_ratings(data: str = None) -> tuple[bool, str]:
+    serializer_ratings = RatingsSerializer(data=data)
+    if serializer_ratings.is_valid():
+        serializer_ratings.save()
+        return True, serializer_ratings.data
+    return False, serializer_ratings.errors
 
 
 def get_user_data(user: int = None) -> str:
-    data_user = models.Profile.objects.filter(
+    user_data = models.Profile.objects.filter(
         user=user).values(
         'name', 'count_words', 'rating'
     )
-    return ProfileSerializer(data_user, many=True).data
+    return ProfileSerializer(user_data, many=True).data
 
 
 def add_user_data(data: str = None) -> tuple[bool, str]:
@@ -35,9 +48,9 @@ def get_word_for_study(user: int = None,
     words_in_learn = models.UserDictionaries.objects.filter(user=user)
     if words_in_learn:
         word = models.Dictionary.objects.annotate(
-                word=Subquery(words_in_learn)
-            ).all(
-                category__name=name_category).filter(pk__gt=pk).first()
+            word=Subquery(words_in_learn)
+        ).all(
+            category__name=name_category).filter(pk__gt=pk).first()
     else:
         word = models.Dictionary.objects.select_related(
             'en_word', 'ru_word', 'category'
@@ -55,11 +68,11 @@ def add_word_for_study(data: str = None) -> tuple[bool, str]:
 
 
 def get_studied_word(user: int = None,
-                        is_learn: bool = False
-                        ) -> str:
+                     is_learn: bool = False
+                     ) -> str:
     words = models.UserDictionaries.objects.filter(
         user=user, is_learn=is_learn
-    ).all()[:10]
+    ).all()[:5]
     return UserDictionariesSerializer(words, many=True).data
 
 
@@ -80,8 +93,8 @@ def update_word_studied(data: str = None) -> tuple[bool, str]:
 
 
 def get_all_categories() -> str:
-    categories = models.Categories.objects.all()
-    return CategoriesSerializer(categories, many=True).data
+    categories_data = models.Categories.objects.all()
+    return CategoriesSerializer(categories_data, many=True).data
 
 
 def add_category(data: str = None) -> tuple[bool, str]:

@@ -20,8 +20,9 @@ from dictionary import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('categories/', views.Categories.as_view()),
+    path('categories/', views.CategoriesData.as_view()),
     path('new_word/', views.WordForStudy.as_view()),
-    path('user/', views.DataUser.as_view()),
-    path('studied_word/', views.WordFromUserDictionary.as_view())
+    path('user/', views.UserData.as_view()),
+    path('studied_word/', views.WordFromUserDictionary.as_view()),
+    path('ratings/', views.RatingsData.as_view())
 ]

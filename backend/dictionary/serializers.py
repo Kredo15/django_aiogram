@@ -7,7 +7,7 @@ from .models import Dictionary, Enwords, Ruwords, \
 class RatingsSerializer(ModelSerializer):
     class Meta:
         model = Ratings
-        fields = ["name"]
+        fields = ["name", "criteria"]
 
     def create(self, validated_data):
         return Ratings(**validated_data)
@@ -33,7 +33,8 @@ class ProfileSerializer(ModelSerializer):
     def create(self, validated_data):
         user_data = User.objects.create_user(
             username=validated_data.get("name"))
-        post = Profile(user=user_data)
+        rating_data = Ratings.objects.get(pk=1)
+        post = Profile(user=user_data, rating=rating_data)
         return post
 
     def update(self, instance, validated_data):
@@ -116,20 +117,7 @@ class UserDictionariesSerializer(ModelSerializer):
         return post
 
     def update(self, instance, validated_data):
-        instance.translate_choose_ru = validated_data.get(
-            "translate_choose_ru", instance.translate_choose_ru
-        )
-        instance.translate_choose_en = validated_data.get(
-            "translate_choose_en", instance.translate_choose_en
-        )
-        instance.translate_write_ru = validated_data.get(
-            "translate_write_ru", instance.translate_write_ru
-        )
-        instance.translate_write_en = validated_data.get(
-            "translate_write_en", instance.translate_write_en
-        )
-        instance.write_word_using_audio = validated_data.get(
-            "write_word_using_audio", instance.write_word_using_audio
-        )
+        for key, value in validated_data:
+            setattr(instance, key, value)
         instance.save()
         return instance
