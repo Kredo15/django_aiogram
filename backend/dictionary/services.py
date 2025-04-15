@@ -9,7 +9,7 @@ def get_all_ratings() -> str:
     return RatingsSerializer(ratings_data, many=True).data
 
 
-def add_ratings(data: str = None) -> tuple[bool, str]:
+def add_ratings(data: dict = None) -> tuple[bool, str]:
     serializer_ratings = RatingsSerializer(data=data)
     if serializer_ratings.is_valid():
         serializer_ratings.save()
@@ -18,14 +18,12 @@ def add_ratings(data: str = None) -> tuple[bool, str]:
 
 
 def get_user_data(user: int = None) -> str:
-    user_data = models.Profile.objects.filter(
-        user=user).values(
-        'name', 'count_words', 'rating'
-    )
-    return ProfileSerializer(user_data, many=True).data
+    user_data = models.Profile.objects.get(user__username=user)
+    return ProfileSerializer(user_data).data
 
 
-def add_user_data(data: str = None) -> tuple[bool, str]:
+def add_user_data(data: dict = None) -> tuple[bool, str]:
+    data["rating"] = {"name": "новичок"}
     serializer_data_user = ProfileSerializer(data=data)
     if serializer_data_user.is_valid():
         serializer_data_user.save()
@@ -33,7 +31,7 @@ def add_user_data(data: str = None) -> tuple[bool, str]:
     return False, serializer_data_user.errors
 
 
-def update_user_data(data: str = None) -> tuple[bool, str]:
+def update_user_data(data: dict = None) -> tuple[bool, str]:
     instance = models.Profile.objects.get(user=data.get("user"))
     serializer_data_user = ProfileSerializer(data=data, instance=instance)
     if serializer_data_user.is_valid():
@@ -59,7 +57,7 @@ def get_word_for_study(user: int = None,
     return serialize_in_learn.data
 
 
-def add_word_for_study(data: str = None) -> tuple[bool, str]:
+def add_word_for_study(data: dict = None) -> tuple[bool, str]:
     serializer_new_word = DictionarySerializer(data=data)
     if serializer_new_word.is_valid():
         serializer_new_word.save()
@@ -76,7 +74,7 @@ def get_studied_word(user: int = None,
     return UserDictionariesSerializer(words, many=True).data
 
 
-def add_word_studied(data: str = None) -> tuple[bool, str]:
+def add_word_studied(data: dict = None) -> tuple[bool, str]:
     serializer_word_studied = UserDictionariesSerializer(data=data)
     if serializer_word_studied.is_valid():
         serializer_word_studied.save()
@@ -84,7 +82,7 @@ def add_word_studied(data: str = None) -> tuple[bool, str]:
     return False, serializer_word_studied.errors
 
 
-def update_word_studied(data: str = None) -> tuple[bool, str]:
+def update_word_studied(data: dict = None) -> tuple[bool, str]:
     instance = models.UserDictionaries.objects.get(user=data.get("user"), word=data.get("word"))
     serializer_word_studied = UserDictionariesSerializer(data=data, instance=instance)
     if serializer_word_studied.is_valid():
@@ -97,7 +95,7 @@ def get_all_categories() -> str:
     return CategoriesSerializer(categories_data, many=True).data
 
 
-def add_category(data: str = None) -> tuple[bool, str]:
+def add_category(data: dict = None) -> tuple[bool, str]:
     serializer_category = CategoriesSerializer(data=data)
     if serializer_category.is_valid():
         serializer_category.save()

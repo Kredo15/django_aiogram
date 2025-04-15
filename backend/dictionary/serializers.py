@@ -10,7 +10,7 @@ class RatingsSerializer(ModelSerializer):
         fields = ["name", "criteria"]
 
     def create(self, validated_data):
-        return Ratings(**validated_data)
+        return Ratings.objects.create(**validated_data)
 
 
 class UserSerializer(ModelSerializer):
@@ -19,7 +19,7 @@ class UserSerializer(ModelSerializer):
         fields = ['username', 'first_name']
 
     def create(self, validated_data):
-        return User(**validated_data)
+        return User.objects.create(**validated_data)
 
 
 class ProfileSerializer(ModelSerializer):
@@ -32,9 +32,10 @@ class ProfileSerializer(ModelSerializer):
 
     def create(self, validated_data):
         user_data = User.objects.create_user(
-            username=validated_data.get("name"))
-        rating_data = Ratings.objects.get(pk=1)
-        post = Profile(user=user_data, rating=rating_data)
+            username=validated_data.get("user").get("username"),
+            first_name=validated_data.get("user").get("first_name"))
+        rating_data = Ratings.objects.get(name=validated_data.get("rating").get("name"))
+        post = Profile.objects.create(user=user_data, rating=rating_data)
         return post
 
     def update(self, instance, validated_data):
@@ -53,7 +54,7 @@ class EnwordsSerializer(ModelSerializer):
         fields = ["word"]
 
     def create(self, validated_data):
-        return Enwords(**validated_data)
+        return Enwords.objects.create(**validated_data)
 
 
 class RuwordsSerializer(ModelSerializer):
@@ -62,7 +63,7 @@ class RuwordsSerializer(ModelSerializer):
         fields = ["word"]
 
     def create(self, validated_data):
-        return Ruwords(**validated_data)
+        return Ruwords.objects.create(**validated_data)
 
 
 class CategoriesSerializer(ModelSerializer):
@@ -71,7 +72,7 @@ class CategoriesSerializer(ModelSerializer):
         fields = ["name"]
 
     def create(self, validated_data):
-        return Categories(**validated_data)
+        return Categories.objects.create(**validated_data)
 
 
 class DictionarySerializer(ModelSerializer):
