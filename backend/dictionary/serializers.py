@@ -1,5 +1,7 @@
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from .models import Dictionary, Enwords, Ruwords, \
     Categories, Profile, Ratings, UserDictionaries
 
@@ -23,7 +25,7 @@ class UserSerializer(ModelSerializer):
 
 
 class ProfileSerializer(ModelSerializer):
-    user = UserSerializer()
+    user = get_user_model()
     rating = RatingsSerializer()
 
     class Meta:
@@ -99,26 +101,24 @@ class DictionarySerializer(ModelSerializer):
 
 
 class UserDictionariesSerializer(ModelSerializer):
-    user = UserSerializer()
+    user = serializers.CharField(source='user.username')
 
     class Meta:
         model = UserDictionaries
-        fields = '__all__'
         exclude = ['id', 'is_learn']
 
     def create(self, validated_data):
-        user_data = User.objects.get_by_natural_key(
-            username=validated_data.get("name"))
-        word_data = Dictionary.objects.get(
-            pk=validated_data.get("pk"))
-        post = UserDictionaries(
+        user_data = get_user_model().objects.get(
+            username=validated_data.get("user").get("username"))
+        post = UserDictionaries.objects.create(
             user=user_data,
-            word=word_data
+            word=validated_data.get("word")
         )
         return post
 
     def update(self, instance, validated_data):
-        for key, value in validated_data:
-            setattr(instance, key, value)
+        for key, value in validated_data.items():
+            if key not in ('user', 'word'):
+                setattr(instance, key, value)
         instance.save()
         return instance

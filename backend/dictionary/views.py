@@ -88,7 +88,7 @@ class WordFromUserDictionary(APIView):
         user = request.query_params.get('user')
         is_learn = request.query_params.get('is_learn')
         if user:
-            return Response(get_studied_word(user, is_learn), status=status.HTTP_200_OK)
+            return Response(get_studied_word(user), status=status.HTTP_200_OK)
         return Response({'message': 'Передайте user'}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
@@ -100,5 +100,5 @@ class WordFromUserDictionary(APIView):
     def put(self, request):
         check, data = update_word_studied(request.data)
         if check:
-            return Response({'message': f'Запись {data} добавлена'}, status=status.HTTP_202_ACCEPTED)
+            return Response({'message': f'Запись {data} обновлена'}, status=status.HTTP_202_ACCEPTED)
         return Response({'message': f'Ошибка: {data}'}, status=status.HTTP_400_BAD_REQUEST)

@@ -69,7 +69,7 @@ def get_studied_word(user: int = None,
                      is_learn: bool = False
                      ) -> str:
     words = models.UserDictionaries.objects.filter(
-        user=user, is_learn=is_learn
+        user__username=user, is_learn=is_learn
     ).all()[:5]
     return UserDictionariesSerializer(words, many=True).data
 
@@ -83,9 +83,10 @@ def add_word_studied(data: dict = None) -> tuple[bool, str]:
 
 
 def update_word_studied(data: dict = None) -> tuple[bool, str]:
-    instance = models.UserDictionaries.objects.get(user=data.get("user"), word=data.get("word"))
+    instance = models.UserDictionaries.objects.get(user__username=data.get("user"), word=data.get("word"))
     serializer_word_studied = UserDictionariesSerializer(data=data, instance=instance)
     if serializer_word_studied.is_valid():
+        serializer_word_studied.save()
         return True, serializer_word_studied.data
     return False, serializer_word_studied.errors
 

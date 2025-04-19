@@ -54,11 +54,13 @@ async def bot_send_message_new_word(state: FSMContext,
     pk_new, en_word, ru_word = await get_word_for_learning(user_id=user_id,
                                                            name_category=name_category,
                                                            pk_old=pk_old)
-    await state.update_data(pk=pk_new, new_word=dict(en_word=en_word, ru_word=ru_word))
-    await bot.send_message(chat_id=user_id,
-                           text=f'{en_word}<span class="tg-spoiler"> - {ru_word}</span>',
-                           parse_mode='html',
-                           reply_markup=get_button_new_word())
+    message = await bot.send_message(chat_id=user_id,
+                                     text=f'{en_word}<span class="tg-spoiler"> - {ru_word}</span>',
+                                     parse_mode='html',
+                                     reply_markup=get_button_new_word())
+    await state.update_data(pk=pk_new,
+                            message_id=message.message_id,
+                            new_word=dict(en_word=en_word, ru_word=ru_word))
 
 
 def get_data_after_study(data: dict) -> dict:

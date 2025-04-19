@@ -64,7 +64,7 @@ async def word_study(message: Message, state: FSMContext):
     data_update = get_data_after_study(data=data)
     await state.update_data(data_update)
     await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id-1)
+    await bot.delete_message(chat_id=message.chat.id, message_id=data.get('message_id'))
     if len(data_update.get('study')) == 5:
         await message.answer(get_final_message_for_study(data_update.get('study')),
                              reply_markup=get_button_start_study())
