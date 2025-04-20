@@ -29,3 +29,23 @@ async def add_studied_word(data: dict):
                 data=data
         ) as response:
             return await response.json()
+
+
+async def get_user_data(username: int):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+                url=f'{API_URL_STUDIED_WORD}/?user={username}'
+        ) as response:
+            return await response.json()
+
+
+async def add_user(username: int):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+                url=f'{API_URL_STUDIED_WORD}',
+                data={"user": {
+                                "username": username
+                            }
+                      }
+        ) as response:
+            return await response.json()

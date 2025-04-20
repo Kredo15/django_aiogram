@@ -9,7 +9,7 @@ from .keyboards import get_inline_actions, get_button_start_study, \
 from .state import WordsStudy
 from .services import get_inline_with_categories, bot_send_message_new_word, \
     get_data_after_study, get_data_after_skipping, get_final_message_for_study, \
-    add_studied_word_in_user_dict
+    add_studied_word_in_user_dict, get_actions_depending_user
 from .button_signature import STUDY, STOP_STUDY, KNOW
 
 
@@ -25,6 +25,7 @@ async def help_command(message: Message, state: FSMContext):
 
 @dp.message(Command(commands=["start", "menu"]))
 async def start_command(message: Message, state: FSMContext):
+    user_actions = get_actions_depending_user(message.from_user.id)
     current_state = await state.get_state()
     if current_state is None:
         await message.answer('Выбери действие', reply_markup=get_inline_actions())
