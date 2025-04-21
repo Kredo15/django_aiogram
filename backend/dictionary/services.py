@@ -102,3 +102,16 @@ def add_category(data: dict = None) -> tuple[bool, str]:
         serializer_category.save()
         return True, serializer_category.data
     return False, serializer_category.errors
+
+
+def add_number_words_studied(username: str):
+    instance = models.Profile.objects.get(user=username)
+    instance.number_half_learned_words -= 1
+    instance.number_words_studied += 1
+    instance.save()
+
+
+def add_number_half_learned_words(username: str):
+    instance = models.Profile.objects.get(user=username)
+    instance.number_half_learned_words += 1
+    instance.save()

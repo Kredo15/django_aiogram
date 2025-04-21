@@ -4,8 +4,8 @@ from aiogram.types import Message, InlineQuery, ChosenInlineResult, CallbackQuer
 from aiogram import F
 from aiogram.fsm.context import FSMContext
 from .app import bot
-from .keyboards import get_inline_actions, get_button_start_study, \
-    get_inline_menu
+from .keyboards import get_button_start_study, get_inline_menu
+
 from .state import WordsStudy
 from .services import get_inline_with_categories, bot_send_message_new_word, \
     get_data_after_study, get_data_after_skipping, get_final_message_for_study, \
@@ -28,7 +28,7 @@ async def start_command(message: Message, state: FSMContext):
     user_actions = get_actions_depending_user(message.from_user.id)
     current_state = await state.get_state()
     if current_state is None:
-        await message.answer('Выбери действие', reply_markup=get_inline_actions())
+        await message.answer('Выбери действие', reply_markup=user_actions())
     else:
         await message.answer('Мы не закончили упражнение ☝️')
 

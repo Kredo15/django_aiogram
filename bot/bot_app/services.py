@@ -1,7 +1,9 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
 from .app import bot
-from .keyboards import get_button_new_word
+from .keyboards import get_button_new_word, get_actions_all, \
+    get_actions_for_learned, get_actions_for_half_learned, \
+    get_actions_new_word
 from .data_fetcher import get_new_word, get_categories, add_studied_word, \
     get_user_data, add_user
 import copy
@@ -17,8 +19,14 @@ async def init_user(username: int) -> dict | None:
 
 async def get_actions_depending_user(username: int):
     user = await init_user(username)
-    if user.get("count_words") > 0:
-        pass
+    if user.get("number_words_studied") > 0 and user.get("number_half_learned_words") > 0:
+        return get_actions_all
+    elif user.get("number_words_studied") > 0:
+        return get_actions_for_learned
+    elif user.get("number_half_learned_words") > 0:
+        return get_actions_for_half_learned
+    else:
+        return get_actions_new_word
 
 
 async def get_inline_with_categories() -> list[InlineQueryResultArticle]:

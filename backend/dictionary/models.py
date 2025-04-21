@@ -48,7 +48,8 @@ class Ratings(models.Model):
 class Profile(models.Model):
     """Таблца пользователей"""
     user = models.OneToOneField(User, on_delete=models.PROTECT)
-    count_words = models.IntegerField(default=0)
+    number_words_studied = models.IntegerField(default=0)
+    number_half_learned_words = models.IntegerField(default=0)
     rating = models.ForeignKey('Ratings', on_delete=models.PROTECT)
 
     def __str__(self):

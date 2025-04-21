@@ -1,6 +1,8 @@
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from .models import UserDictionaries
+from .services import add_number_words_studied, \
+    add_number_half_learned_words
 
 
 @receiver(pre_save, sender=UserDictionaries)
@@ -12,3 +14,12 @@ def update_studied_step_word(sender, instance, **kwargs):
     if all(result):
         instance.is_learn = True
     return instance
+
+
+@receiver(post_save, sender=UserDictionaries)
+def update_number_word_studied(sender, instance, created, **kwargs):
+    if created:
+        add_number_half_learned_words(instance.user)
+    else:
+        if instance.is_learn:
+            add_number_words_studied(instance.user)

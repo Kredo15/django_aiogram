@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, \
     ReplyKeyboardMarkup, KeyboardButton
 from .button_signature import STUDY_NEW_WORD, HALF_LEARNED_WORD, KNOW, \
-    STUDY, STOP_STUDY, START, MENU
+    STUDY, STOP_STUDY, START, MENU, LEARNED_WORD, RATING, HELP
 
 
 def get_inline_menu() -> InlineKeyboardMarkup:
@@ -12,10 +12,45 @@ def get_inline_menu() -> InlineKeyboardMarkup:
     return keyboard
 
 
-def get_inline_actions() -> InlineKeyboardMarkup:
+def get_actions_all() -> InlineKeyboardMarkup:
     buttons = [
         [InlineKeyboardButton(text=STUDY_NEW_WORD, switch_inline_query_current_chat="categories")],
-        [InlineKeyboardButton(text=HALF_LEARNED_WORD, callback_data="repetition_word")]
+        [InlineKeyboardButton(text=HALF_LEARNED_WORD, callback_data="half_learned_word")],
+        [InlineKeyboardButton(text=LEARNED_WORD, callback_data="learned_word")],
+        [InlineKeyboardButton(text=RATING, callback_data="ratings")],
+        [InlineKeyboardButton(text=HELP, callback_data="help")]
+    ]
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    return keyboard
+
+
+def get_actions_for_learned() -> InlineKeyboardMarkup:
+    buttons = [
+        [InlineKeyboardButton(text=STUDY_NEW_WORD, switch_inline_query_current_chat="categories")],
+        [InlineKeyboardButton(text=LEARNED_WORD, callback_data="learned_word")],
+        [InlineKeyboardButton(text=RATING, callback_data="ratings")],
+        [InlineKeyboardButton(text=HELP, callback_data="help")]
+    ]
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    return keyboard
+
+
+def get_actions_for_half_learned() -> InlineKeyboardMarkup:
+    buttons = [
+        [InlineKeyboardButton(text=STUDY_NEW_WORD, switch_inline_query_current_chat="categories")],
+        [InlineKeyboardButton(text=HALF_LEARNED_WORD, callback_data="half_learned_word")],
+        [InlineKeyboardButton(text=RATING, callback_data="ratings")],
+        [InlineKeyboardButton(text=HELP, callback_data="help")]
+    ]
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    return keyboard
+
+
+def get_actions_new_word() -> InlineKeyboardMarkup:
+    buttons = [
+        [InlineKeyboardButton(text=STUDY_NEW_WORD, switch_inline_query_current_chat="categories")],
+        [InlineKeyboardButton(text=RATING, callback_data="ratings")],
+        [InlineKeyboardButton(text=HELP, callback_data="help")]
     ]
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
     return keyboard

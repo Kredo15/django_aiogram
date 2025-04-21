@@ -30,7 +30,7 @@ class ProfileSerializer(ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['user', 'count_words', 'rating']
+        fields = ['user', 'number_words_studied', 'rating']
 
     def create(self, validated_data):
         user_data = User.objects.create_user(
