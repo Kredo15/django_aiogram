@@ -4,13 +4,13 @@ from aiogram.types import Message, InlineQuery, ChosenInlineResult, CallbackQuer
 from aiogram import F
 from aiogram.fsm.context import FSMContext
 from .app import bot
-from .keyboards import get_button_start_study, get_inline_menu
+from .keyboards import get_inline_menu
 
 from .state import WordsStudy
 from .services import get_inline_with_categories, bot_send_message_new_word, \
-    get_data_after_study, get_data_after_skipping, get_final_message_for_study, \
-    add_studied_word_in_user_dict, get_actions_depending_user
-from .button_signature import STUDY, STOP_STUDY, KNOW
+    get_data_after_study, get_data_after_skipping, send_final_message_for_study, \
+    add_studied_word_in_user_dict, get_actions_depending_user, send_studied_word
+from .button_signature import STUDY, STOP_STUDY, KNOW, START
 
 
 @dp.message(Command(commands=["help"]))
@@ -25,7 +25,7 @@ async def help_command(message: Message, state: FSMContext):
 
 @dp.message(Command(commands=["start", "menu"]))
 async def start_command(message: Message, state: FSMContext):
-    user_actions = get_actions_depending_user(message.from_user.id)
+    user_actions = await get_actions_depending_user(message.from_user.id, message.from_user.username)
     current_state = await state.get_state()
     if current_state is None:
         await message.answer('Выбери действие', reply_markup=user_actions())
@@ -35,10 +35,11 @@ async def start_command(message: Message, state: FSMContext):
 
 @dp.callback_query(F.data == "menu")
 async def choose_category(callback: CallbackQuery, state: FSMContext):
+    user_actions = await get_actions_depending_user(callback.from_user.id, callback.from_user.username)
     await bot.delete_message(chat_id=callback.message.chat.id,
                              message_id=callback.message.message_id)
     await bot.send_message(chat_id=callback.message.chat.id, text='Выбери действие',
-                           reply_markup=get_inline_actions())
+                           reply_markup=user_actions())
 
 
 @dp.inline_query(F.query == "categories")
@@ -67,8 +68,9 @@ async def word_study(message: Message, state: FSMContext):
     await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     await bot.delete_message(chat_id=message.chat.id, message_id=data.get('message_id'))
     if len(data_update.get('study')) == 5:
-        await message.answer(get_final_message_for_study(data_update.get('study')),
-                             reply_markup=get_button_start_study())
+        await send_final_message_for_study(state=state,
+                                           user_id=message.from_user.id,
+                                           data_study=data_update.get('study'))
     else:
         await bot_send_message_new_word(state=state,
                                         user_id=message.from_user.id,
@@ -81,6 +83,11 @@ async def know_word(message: Message, state: FSMContext):
     data = await state.get_data()
     await add_studied_word_in_user_dict(user_id=message.from_user.id, data=data)
     data_update = get_data_after_skipping(data=data)
+    await state.update_data(data_update)
+    await bot_send_message_new_word(state=state,
+                                    user_id=message.from_user.id,
+                                    name_category=data['name_category'],
+                                    pk_old=data['pk'])
 
 
 @dp.message(F.text == STOP_STUDY)
@@ -91,3 +98,11 @@ async def stop_study(message: Message, state: FSMContext):
     else:
         await state.clear()
         await message.answer('Ок, приходи за новыми знаниями! 🎓')
+
+
+@dp.message(F.text == START)
+async def start_study(message: Message, state: FSMContext):
+    data = await state.get_data()
+    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+    await bot.delete_message(chat_id=message.chat.id, message_id=data.get('message_id'))
+    await send_studied_word(data.get("study"))

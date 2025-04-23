@@ -25,12 +25,12 @@ class UserSerializer(ModelSerializer):
 
 
 class ProfileSerializer(ModelSerializer):
-    user = get_user_model()
+    user = UserSerializer()
     rating = RatingsSerializer()
 
     class Meta:
         model = Profile
-        fields = ['user', 'number_words_studied', 'rating']
+        exclude = ['id']
 
     def create(self, validated_data):
         user_data = User.objects.create_user(

@@ -5,6 +5,6 @@ RATING: str = "🏆 Рейтинг"
 HELP: str = "❓ Помощь"
 KNOW: str = '😎 Знаю'
 STUDY: str = '📝️ Изучать'
-STOP_STUDY: str = '✋ Закончить упражнение'
+STOP_STUDY: str = '🏁 Закончить упражнение'
 START: str = '🚀 Поехали'
 MENU: str = '📋 Меню'

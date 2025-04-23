@@ -3,22 +3,24 @@ from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
 from .app import bot
 from .keyboards import get_button_new_word, get_actions_all, \
     get_actions_for_learned, get_actions_for_half_learned, \
-    get_actions_new_word
+    get_actions_new_word, get_button_start_study
 from .data_fetcher import get_new_word, get_categories, add_studied_word, \
     get_user_data, add_user
 import copy
 
 
-async def init_user(username: int) -> dict | None:
-    user_data = await get_user_data(username)
+async def init_user(user_id: int, username: str) -> dict | None:
+    user_data = await get_user_data(user_id)
     if user_data:
         return user_data
-    await add_user(username)
+    await add_user(user_id, username)
     return
 
 
-async def get_actions_depending_user(username: int):
-    user = await init_user(username)
+async def get_actions_depending_user(user_id: int, username: str):
+    user = await init_user(user_id, username)
+    if not user:
+        return get_actions_new_word
     if user.get("number_words_studied") > 0 and user.get("number_half_learned_words") > 0:
         return get_actions_all
     elif user.get("number_words_studied") > 0:
@@ -63,8 +65,7 @@ async def add_studied_word_in_user_dict(user_id: int, data: dict) -> None:
         "translate_choose_en": True,
         "translate_write_ru": True,
         "translate_write_en": True,
-        "write_word_using_audio": True,
-        "is_learn": True
+        "write_word_using_audio": True
     }
     await add_studied_word(data_for_send)
 
@@ -111,3 +112,18 @@ def get_final_message_for_study(data: dict) -> str:
     for value in data.values():
         result += f"{value['en_word']} - {value['ru_word']}\n"
     return f"Отлично! Готов изучить слова 📚?\n\n{result}"
+
+
+async def send_final_message_for_study(state: FSMContext,
+                                       user_id: int = None,
+                                       data_study: dict = None):
+    data = await state.get_data()
+    message = await bot.send_message(chat_id=user_id,
+                                     text=get_final_message_for_study(data_study),
+                                     reply_markup=get_button_start_study())
+    data["message_id"] = message.message_id
+    await state.update_data(data)
+
+
+async def send_studied_word(data: dict=None):
+    pass

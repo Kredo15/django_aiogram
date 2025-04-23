@@ -1,6 +1,7 @@
 import aiohttp
+import json
 from .local_settings import API_URL_NEW_WORD, API_URL_CATEGORIES, \
-    API_URL_STUDIED_WORD
+    API_URL_STUDIED_WORD, API_URL_USER
 
 
 async def get_new_word(user_id: int,
@@ -9,7 +10,7 @@ async def get_new_word(user_id: int,
                        ):
     async with aiohttp.ClientSession() as session:
         async with session.get(
-                f'{API_URL_NEW_WORD}/?user={user_id}&name_category={name_category}&pk={pk}'
+                f'{API_URL_NEW_WORD}?user={user_id}&name_category={name_category}&pk={pk}'
         ) as response:
             return await response.json()
 
@@ -26,25 +27,26 @@ async def add_studied_word(data: dict):
     async with aiohttp.ClientSession() as session:
         async with session.post(
                 url=f'{API_URL_STUDIED_WORD}',
-                data=data
+                json=data
         ) as response:
             return await response.json()
 
 
 async def get_user_data(username: int):
     async with aiohttp.ClientSession() as session:
-        async with session.post(
-                url=f'{API_URL_STUDIED_WORD}/?user={username}'
+        async with session.get(
+                url=f'{API_URL_USER}?user={username}'
         ) as response:
             return await response.json()
 
 
-async def add_user(username: int):
+async def add_user(user_id: int, username: str):
     async with aiohttp.ClientSession() as session:
         async with session.post(
-                url=f'{API_URL_STUDIED_WORD}',
-                data={"user": {
-                                "username": username
+                url=f'{API_URL_USER}',
+                json={"user": {
+                                "username": user_id,
+                                "first_name": username
                             }
                       }
         ) as response:
