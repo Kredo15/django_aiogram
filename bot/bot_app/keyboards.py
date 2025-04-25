@@ -93,3 +93,13 @@ def get_button_start_study() -> ReplyKeyboardMarkup:
         one_time_keyboard=True
     )
     return button_keyboard
+
+
+def get_buttons_for_choose(buttons_name: list) -> ReplyKeyboardMarkup:
+    kb = [[KeyboardButton(text=name)] for name in buttons_name]
+    button_keyboard = ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+    return button_keyboard

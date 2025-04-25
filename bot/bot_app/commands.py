@@ -103,6 +103,9 @@ async def stop_study(message: Message, state: FSMContext):
 @dp.message(F.text == START)
 async def start_study(message: Message, state: FSMContext):
     data = await state.get_data()
+    data['start_study'] = {'choose_en': [i for i in range(5)],
+                           'choose_ru': [i for i in range(5)]}
+    await state.update_data(data)
     await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     await bot.delete_message(chat_id=message.chat.id, message_id=data.get('message_id'))
-    await send_studied_word(data.get("study"))
+    await send_studied_word(state=state, chat_id=message.chat.id, data=data)
