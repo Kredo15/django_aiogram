@@ -1,5 +1,6 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
+from aiogram.types import Message
 from .app import bot
 from .keyboards import get_button_new_word, get_actions_all, \
     get_actions_for_learned, get_actions_for_half_learned, \
@@ -85,7 +86,9 @@ async def bot_send_message_new_word(state: FSMContext,
                                      reply_markup=get_button_new_word())
     await state.update_data(pk=pk_new,
                             message_id=message.message_id,
-                            new_word=dict(en_word=en_word, ru_word=ru_word))
+                            new_word=dict(en_word=en_word, ru_word=ru_word,
+                                          translate_choose_en=False,
+                                          translate_choose_ru=False))
 
 
 def get_data_after_study(data: dict) -> dict:
@@ -126,6 +129,11 @@ async def send_final_message_for_study(state: FSMContext,
     await state.update_data(data)
 
 
+async def send_menu(message: Message):
+    user_actions = await get_actions_depending_user(message.from_user.id, message.from_user.username)
+    await bot.send_message(chat_id=message.chat.id, text='Выбери действие', reply_markup=user_actions())
+
+
 def make_list_words(data: dict, exclude: int, word: str):
     """Собираем список для составления выбора слов"""
     make_list = []
@@ -140,7 +148,7 @@ def get_en_word_with_choose_ru(key: int, data: dict):
     3 перевода на выбор(1 правильное + 2 случайных)"""
     send_word = data[key]['en_word']
     other_words = make_list_words(data, key, 'ru_word')
-    return send_word, random.shuffle([data[key]['ru_word'] + other_words])
+    return send_word, data[key]['ru_word'], random.shuffle([data[key]['ru_word']] + other_words)
 
 
 def get_ru_word_with_choose_en(key: int, data: dict):
@@ -148,7 +156,7 @@ def get_ru_word_with_choose_en(key: int, data: dict):
     3 перевода на выбор(1 правильное + 2 случайных)"""
     send_word = data[key]['ru_word']
     other_words = make_list_words(data, key, 'en_word')
-    return send_word, random.shuffle([data[key]['en_word'] + other_words])
+    return send_word, data[key]['en_word'], random.shuffle([data[key]['en_word']] + other_words)
 
 
 def get_random_func(data: dict) -> str | None:
@@ -164,7 +172,7 @@ def get_random_func(data: dict) -> str | None:
 
 
 async def send_studied_word(state: FSMContext,
-                            chat_id: int, data: dict = None):
+                            message: Message, data: dict = None):
     """Выбираем рандомно какое слово отправить
     (на английское слово с выбором перевода на русском
     либо русское слово с выбором перевода на английском)
@@ -173,20 +181,26 @@ async def send_studied_word(state: FSMContext,
     чтобы повторно не отправить)
     получаем слово и 3 перевода для выбора
     отправляем сообщение и обновляем state"""
-    funcs = {'choose_en': get_en_word_with_choose_ru,
-             'choose_ru': get_ru_word_with_choose_en}
+    funcs = {'translate_choose_en': get_en_word_with_choose_ru,
+             'translate_choose_ru': get_ru_word_with_choose_en}
     random_key_func = get_random_func(data.get('start_study'))
-    if not data['start_study']:
-        bot.send_message(chat_id=chat_id,
-                         text="Отлично, ты изучил 5 слов")
+    if not data['exercise']:
+        bot.send_message(chat_id=message.chat.id,
+                         text="Отлично, за тренировку ты прошел 5 слов")
         await state.clear()
+        await send_menu(message)
     elif random_key_func:
-        list_keys_word = data.get('start_study').get(random_key_func)
+        list_keys_word = data.get('exercise').get(random_key_func)
         random_word_key = list_keys_word.pop(random.randrange(len(list_keys_word)))
-        word, buttons_name = funcs[random_key_func](random_word_key,
-                                                    data.get('study'))
-        message = bot.send_message(chat_id=chat_id,
+        word, true_word, buttons_name = funcs[random_key_func](random_word_key,
+                                                               data.get('study'))
+        message = bot.send_message(chat_id=message.chat.id,
                                    text=word,
                                    reply_markup=get_buttons_for_choose(buttons_name))
         data["message_id"] = message.message_id
+        data["current_studied_word"] = {
+                                        "true_word": true_word,
+                                        "key": random_word_key,
+                                        "func": random_word_key
+                                    }
         await state.update_data(data)

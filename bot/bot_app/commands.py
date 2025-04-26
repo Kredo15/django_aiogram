@@ -5,7 +5,6 @@ from aiogram import F
 from aiogram.fsm.context import FSMContext
 from .app import bot
 from .keyboards import get_inline_menu
-
 from .state import WordsStudy
 from .services import get_inline_with_categories, bot_send_message_new_word, \
     get_data_after_study, get_data_after_skipping, send_final_message_for_study, \
@@ -38,8 +37,8 @@ async def choose_category(callback: CallbackQuery, state: FSMContext):
     user_actions = await get_actions_depending_user(callback.from_user.id, callback.from_user.username)
     await bot.delete_message(chat_id=callback.message.chat.id,
                              message_id=callback.message.message_id)
-    await bot.send_message(chat_id=callback.message.chat.id, text='Выбери действие',
-                           reply_markup=user_actions())
+    await callback.message.answer(text='Выбери действие',
+                                  reply_markup=user_actions())
 
 
 @dp.inline_query(F.query == "categories")
@@ -100,12 +99,26 @@ async def stop_study(message: Message, state: FSMContext):
         await message.answer('Ок, приходи за новыми знаниями! 🎓')
 
 
-@dp.message(F.text == START)
-async def start_study(message: Message, state: FSMContext):
+@dp.message(WordsStudy.new_word, F.text == START)
+async def start_exercise(message: Message, state: FSMContext):
     data = await state.get_data()
-    data['start_study'] = {'choose_en': [i for i in range(5)],
-                           'choose_ru': [i for i in range(5)]}
+    data['exercise'] = {'translate_choose_en': [i for i in range(5)],
+                        'translate_choose_ru': [i for i in range(5)]}
     await state.update_data(data)
     await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     await bot.delete_message(chat_id=message.chat.id, message_id=data.get('message_id'))
-    await send_studied_word(state=state, chat_id=message.chat.id, data=data)
+    await send_studied_word(state=state, message=message, data=data)
+
+
+@dp.message(WordsStudy.new_word, F.text)
+async def check_word_with_exercise(message: Message, state: FSMContext):
+    data = await state.get_data()
+    if message.text == data.get("current_studied_word").get('true_word'):
+        await message.answer(text='👌 right')
+        key = data.get("current_studied_word").get('key')
+        func = data.get("current_studied_word").get('func')
+        data['new_word'][key][func] = True
+        await state.update_data(data)
+    else:
+        await message.answer(text='❌ wrong')
+
