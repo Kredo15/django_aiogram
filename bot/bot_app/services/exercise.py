@@ -50,7 +50,7 @@ def make_list_words(data: dict, exclude: str, word: str):
     for key, value in data.items():
         if key != exclude:
             make_list.append(value[word])
-    return random.choices(make_list, k=2)
+    return random.sample(make_list, k=3)
 
 
 def get_en_word_with_choose_ru(key: str, data: dict):
@@ -73,16 +73,29 @@ def get_ru_word_with_choose_en(key: str, data: dict):
     return send_word, data[key]['en_word'], button_names
 
 
-def get_random_func(data: dict) -> str | None:
+def check_key_exercise(data: dict) -> bool:
+    """Проверяем остались ли неотправленные key"""
+    for key in data.keys():
+        if len(data[key]) > 0:
+            return True
+        else:
+            del data[key]
+    return False
+
+
+def get_random_key_func(data: dict) -> str | None:
     random_key_func = random.choice(list(data.keys()))
     if len(data[random_key_func]) > 0:
         return random_key_func
     else:
-        del data[random_key_func]
-        try:
-            return list(data.keys())[0]
-        except IndexError:
-            return
+        return
+
+
+async def finished_exercise(message: Message, state: FSMContext):
+    await bot.send_message(chat_id=message.chat.id,
+                           text="Отлично, за тренировку ты прошел 5 слов")
+    await state.clear()
+    await send_menu(message)
 
 
 async def send_studied_word(state: FSMContext,
@@ -97,24 +110,21 @@ async def send_studied_word(state: FSMContext,
     отправляем сообщение и обновляем state"""
     funcs = {'translate_choose_en': get_en_word_with_choose_ru,
              'translate_choose_ru': get_ru_word_with_choose_en}
-    random_key_func = get_random_func(data.get('exercise'))
-    if not data['exercise']:
-        await bot.send_message(chat_id=message.chat.id,
-                               text="Отлично, за тренировку ты прошел 5 слов")
-        await state.clear()
-        await send_menu(message)
-    elif random_key_func:
+    if check_key_exercise(data.get('exercise')):
+        random_key_func = get_random_key_func(data.get('exercise'))
         list_keys_word = data.get('exercise').get(random_key_func)
         random_word_key = list_keys_word.pop(random.randrange(len(list_keys_word)))
         word, true_word, buttons_name = funcs[random_key_func](random_word_key,
                                                                data.get('study'))
-        message = await bot.send_message(chat_id=message.chat.id,
-                                         text=word,
-                                         reply_markup=get_buttons_for_choose(buttons_name))
-        data["message_id"] = message.message_id
+        send_message = await bot.send_message(chat_id=message.chat.id,
+                                              text=word,
+                                              reply_markup=get_buttons_for_choose(buttons_name))
+        data["message_id"] = send_message.message_id
         data["current_studied_word"] = {
-                                        "true_word": true_word,
-                                        "key": random_word_key,
-                                        "func": random_word_key
-                                    }
+            "true_word": true_word,
+            "key": random_word_key,
+            "func": random_word_key
+        }
         await state.update_data(data)
+    else:
+        await finished_exercise(message=message, state=state)

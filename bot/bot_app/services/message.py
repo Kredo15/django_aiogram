@@ -1,4 +1,3 @@
-import asyncio
 from aiogram.fsm.context import FSMContext
 from bot.bot_app.services.exercise import get_word_for_learning
 from bot.bot_app.keyboards import get_button_new_word, get_button_start_study
@@ -19,7 +18,8 @@ async def bot_send_message_new_word(state: FSMContext,
                                      reply_markup=get_button_new_word())
     await state.update_data(pk=pk_new,
                             message_id=message.message_id,
-                            new_word=dict(en_word=en_word, ru_word=ru_word,
+                            new_word=dict(pk=pk_new, en_word=en_word,
+                                          ru_word=ru_word,
                                           translate_choose_en=False,
                                           translate_choose_ru=False))
 
@@ -44,5 +44,4 @@ async def send_final_message_for_study(state: FSMContext,
 
 async def delete_message(chat_id, curr_message, previous_message):
     await bot.delete_message(chat_id=chat_id, message_id=curr_message)
-    await asyncio.sleep(0)
     await bot.delete_message(chat_id=chat_id, message_id=previous_message)

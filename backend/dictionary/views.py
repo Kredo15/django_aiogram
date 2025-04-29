@@ -1,7 +1,6 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from .services import get_user_data, add_user_data, \
     get_word_for_study, add_word_for_study, get_studied_word, \
     add_word_studied, get_all_categories, add_category, update_user_data, \

@@ -1,18 +1,17 @@
-import asyncio
-from .app import dp
 from aiogram.filters import Command
 from aiogram.types import Message, InlineQuery, ChosenInlineResult, CallbackQuery
 from aiogram import F
 from aiogram.fsm.context import FSMContext
+from .app import dp
 from .app import bot
 from .keyboards import get_inline_menu
 from .state import WordsStudy
-from bot.bot_app.services.inline_button import get_inline_with_categories
-from bot.bot_app.services.message import bot_send_message_new_word, \
+from .services.inline_button import get_inline_with_categories
+from .services.message import bot_send_message_new_word, \
     send_final_message_for_study, delete_message
-from bot.bot_app.services.user import add_studied_word_in_user_dict, \
+from .services.user import add_studied_word_in_user_dict, \
     get_actions_depending_user
-from bot.bot_app.services.exercise import get_data_after_study, \
+from .services.exercise import get_data_after_study, \
     get_data_after_skipping, send_studied_word
 from .button_signature import STUDY, STOP_STUDY, KNOW, START
 
@@ -102,6 +101,8 @@ async def stop_study(message: Message, state: FSMContext):
     else:
         await state.clear()
         await message.answer('Ок, приходи за новыми знаниями! 🎓')
+    user_actions = await get_actions_depending_user(message.from_user.id, message.from_user.username)
+    await message.answer('Выбери действие', reply_markup=user_actions())
 
 
 @dp.message(WordsStudy.new_word, F.text == START)

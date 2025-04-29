@@ -61,7 +61,7 @@ def get_word_for_study(user: int = None,
 
 
 def add_word_for_study(data: dict = None) -> tuple[bool, dict]:
-    serializer_new_word = DictionarySerializer(data=data)
+    serializer_new_word = DictionarySerializer(data=data, many=True)
     if serializer_new_word.is_valid():
         serializer_new_word.save()
         return True, serializer_new_word.data

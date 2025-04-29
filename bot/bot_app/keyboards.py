@@ -96,7 +96,8 @@ def get_button_start_study() -> ReplyKeyboardMarkup:
 
 
 def get_buttons_for_choose(buttons_name: list) -> ReplyKeyboardMarkup:
-    kb = [[KeyboardButton(text=name)] for name in buttons_name]
+    kb = [[KeyboardButton(text=name) for i, name in enumerate(buttons_name) if i % 2 == 0],
+          [KeyboardButton(text=name) for i, name in enumerate(buttons_name) if i % 2 != 0]]
     kb += [[KeyboardButton(text=STOP_STUDY)]]
     button_keyboard = ReplyKeyboardMarkup(
         keyboard=kb,
