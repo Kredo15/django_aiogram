@@ -5,7 +5,7 @@ from aiogram.types import Message
 from bot.bot_app.app import bot
 from bot.bot_app.data_fetcher import get_new_word
 from bot.bot_app.keyboards import get_buttons_for_choose
-from bot.bot_app.services.user import get_actions_depending_user
+from .user import get_actions_depending_user, add_words_after_exercise
 
 
 async def get_word_for_learning(user_id: int,
@@ -19,7 +19,7 @@ async def get_word_for_learning(user_id: int,
     return pk_new, en_word, ru_word
 
 
-def get_data_after_study(data: dict) -> dict:
+def get_data_after_choice_word(data: dict) -> dict:
     if data.get('new_word'):
         try:
             update_data = {len(data.get('study')): copy.deepcopy(data['new_word'])}
@@ -75,12 +75,16 @@ def get_ru_word_with_choose_en(key: str, data: dict):
 
 def check_key_exercise(data: dict) -> bool:
     """Проверяем остались ли неотправленные key"""
+    check = False
+    remove_key = None
     for key in data.keys():
-        if len(data[key]) > 0:
-            return True
+        if len(data[key]) == 0:
+            remove_key = key
         else:
-            del data[key]
-    return False
+            check = True
+    if remove_key:
+        del data[remove_key]
+    return check
 
 
 def get_random_key_func(data: dict) -> str | None:
@@ -91,11 +95,14 @@ def get_random_key_func(data: dict) -> str | None:
         return
 
 
-async def finished_exercise(message: Message, state: FSMContext):
+async def finished_exercise(message: Message, state: FSMContext,
+                            data: dict):
     await bot.send_message(chat_id=message.chat.id,
                            text="Отлично, за тренировку ты прошел 5 слов")
     await state.clear()
     await send_menu(message)
+    await add_words_after_exercise(user_id=message.from_user.id,
+                                   data=data)
 
 
 async def send_studied_word(state: FSMContext,
@@ -127,4 +134,5 @@ async def send_studied_word(state: FSMContext,
         }
         await state.update_data(data)
     else:
-        await finished_exercise(message=message, state=state)
+        await finished_exercise(message=message, state=state,
+                                data=data.get('exercise'))

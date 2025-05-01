@@ -85,7 +85,6 @@ class WordFromUserDictionary(APIView):
 
     def get(self, request):
         user = request.query_params.get('user')
-        is_learn = request.query_params.get('is_learn')
         if user:
             return Response(get_studied_word(user), status=status.HTTP_200_OK)
         return Response({'message': 'Передайте user'}, status=status.HTTP_404_NOT_FOUND)

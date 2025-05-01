@@ -108,11 +108,14 @@ class UserDictionariesSerializer(ModelSerializer):
         exclude = ['id', 'is_learn']
 
     def create(self, validated_data):
+        username = validated_data.pop("user")
+        word = validated_data.pop("word")
         user_data = get_user_model().objects.get(
-            username=validated_data.get("user").get("username"))
+            username=username.get("username"))
         post = UserDictionaries.objects.create(
             user=user_data,
-            word=validated_data.get("word")
+            word=word,
+            **validated_data
         )
         return post
 

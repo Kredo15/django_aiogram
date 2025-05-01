@@ -11,7 +11,7 @@ from .services.message import bot_send_message_new_word, \
     send_final_message_for_study, delete_message
 from .services.user import add_studied_word_in_user_dict, \
     get_actions_depending_user
-from .services.exercise import get_data_after_study, \
+from .services.exercise import get_data_after_choice_word, \
     get_data_after_skipping, send_studied_word
 from .button_signature import STUDY, STOP_STUDY, KNOW, START
 
@@ -66,7 +66,7 @@ async def start_study(chosen_result: ChosenInlineResult, state: FSMContext):
 @dp.message(WordsStudy.new_word, F.text == STUDY)
 async def word_study(message: Message, state: FSMContext):
     data = await state.get_data()
-    data_update = get_data_after_study(data=data)
+    data_update = get_data_after_choice_word(data=data)
     await state.update_data(data_update)
     await delete_message(chat_id=message.chat.id, curr_message=message.message_id,
                          previous_message=data.get('message_id'))
@@ -87,6 +87,7 @@ async def know_word(message: Message, state: FSMContext):
     await add_studied_word_in_user_dict(user_id=message.from_user.id, data=data)
     data_update = get_data_after_skipping(data=data)
     await state.update_data(data_update)
+    await message.answer(text='Ok, пропустим')
     await bot_send_message_new_word(state=state,
                                     user_id=message.from_user.id,
                                     name_category=data['name_category'],

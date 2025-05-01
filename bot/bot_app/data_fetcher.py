@@ -1,5 +1,4 @@
 import aiohttp
-import json
 from .local_settings import API_URL_NEW_WORD, API_URL_CATEGORIES, \
     API_URL_STUDIED_WORD, API_URL_USER
 
@@ -23,7 +22,7 @@ async def get_categories():
             return await response.json()
 
 
-async def add_studied_word(data: dict):
+async def add_studied_word(data: list):
     async with aiohttp.ClientSession() as session:
         async with session.post(
                 url=f'{API_URL_STUDIED_WORD}',

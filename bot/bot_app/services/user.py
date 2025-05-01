@@ -35,10 +35,10 @@ async def add_studied_word_in_user_dict(user_id: int, data: dict) -> None:
         "translate_write_en": True,
         "write_word_using_audio": True
     }
-    await add_studied_word(json_for_send)
+    await add_studied_word([json_for_send])
 
 
-async def add_words_after_exercise(user_id: int, data: dict):
+async def add_words_after_exercise(user_id: int, data: dict) -> None:
     json_for_send = []
     for value in data.values():
         tmp_json = {
