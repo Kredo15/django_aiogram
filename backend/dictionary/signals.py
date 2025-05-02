@@ -19,7 +19,10 @@ def update_studied_step_word(sender, instance, **kwargs):
 @receiver(post_save, sender=UserDictionaries)
 def update_number_word_studied(sender, instance, created, **kwargs):
     if created:
-        add_number_half_learned_words(instance.user)
+        counter = 0
     else:
-        if instance.is_learn:
-            add_number_words_studied(instance.user)
+        counter = 1
+    if instance.is_learn:
+        add_number_words_studied(instance.user, counter)
+    else:
+        add_number_half_learned_words(instance.user)

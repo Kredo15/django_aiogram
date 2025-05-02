@@ -105,9 +105,9 @@ def add_category(data: dict = None) -> tuple[bool, dict]:
     return False, serializer_category.errors
 
 
-def add_number_words_studied(username: str):
+def add_number_words_studied(username: str, counter: int):
     instance = models.Profile.objects.get(user=username)
-    instance.number_half_learned_words -= 1
+    instance.number_half_learned_words -= counter
     instance.number_words_studied += 1
     instance.save()
 
