@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 
 class Ruwords(models.Model):
@@ -47,7 +47,7 @@ class Ratings(models.Model):
 
 class Profile(models.Model):
     """Таблца пользователей"""
-    user = models.OneToOneField(User, on_delete=models.PROTECT)
+    user = models.OneToOneField(get_user_model(), on_delete=models.PROTECT)
     number_words_studied = models.IntegerField(default=0)
     number_half_learned_words = models.IntegerField(default=0)
     rating = models.ForeignKey('Ratings', on_delete=models.PROTECT)
@@ -58,7 +58,7 @@ class Profile(models.Model):
 
 class UserDictionaries(models.Model):
     """Таблица для отслеживания изученых слов пользователями"""
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    user = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
     word = models.ForeignKey('Dictionary', on_delete=models.PROTECT)
     translate_choose_ru = models.BooleanField(default=False)
     translate_choose_en = models.BooleanField(default=False)
@@ -66,3 +66,6 @@ class UserDictionaries(models.Model):
     translate_write_en = models.BooleanField(default=False)
     write_word_using_audio = models.BooleanField(default=False)
     is_learn = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user}, {self.word}, {self.is_learn}'

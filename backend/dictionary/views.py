@@ -2,10 +2,11 @@ import logging
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .services import get_user_data, add_user_data, \
-    get_word_for_study, add_word_for_study, get_studied_word, \
-    add_word_studied, get_all_categories, add_category, update_user_data, \
-    update_word_studied, get_all_ratings, add_ratings
+from .services.dictionary import get_word_for_study, add_word_for_study, \
+    get_studied_word, add_word_studied, update_word_studied
+from .services.category import get_all_categories, add_category
+from .services.ratings import get_all_ratings, add_ratings
+from .services.profile import get_user_data, add_user_data, update_user_data
 
 
 logger = logging.getLogger(__name__)
@@ -72,7 +73,10 @@ class WordForStudy(APIView):
     def get(self, request):
         user = request.query_params.get('user')
         name_category = request.query_params.get('name_category')
-        pk = int(request.query_params.get('pk'))
+        try:
+            pk = int(request.query_params.get('pk'))
+        except TypeError:
+            pk = 0
         if user and name_category:
             return Response(get_word_for_study(
                 user=user,

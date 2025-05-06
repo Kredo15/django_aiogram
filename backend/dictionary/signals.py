@@ -1,7 +1,7 @@
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from .models import UserDictionaries
-from .services import add_number_words_studied, \
+from .services.dictionary import add_number_words_studied, \
     add_number_half_learned_words
 
 
