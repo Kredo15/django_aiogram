@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 
 
 class Ruwords(models.Model):
@@ -58,7 +59,7 @@ class Profile(models.Model):
 
 class UserDictionaries(models.Model):
     """Таблица для отслеживания изученых слов пользователями"""
-    user = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
     word = models.ForeignKey('Dictionary', on_delete=models.PROTECT)
     translate_choose_ru = models.BooleanField(default=False)
     translate_choose_en = models.BooleanField(default=False)

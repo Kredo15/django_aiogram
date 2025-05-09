@@ -35,7 +35,7 @@ def get_studied_word(user: int = None,
     words = models.UserDictionaries.objects.filter(
         user__username=user, is_learn=is_learn
     ).all()[:5]
-    return UserDictionariesSerializer(words).data
+    return UserDictionariesSerializer(words, many=True).data
 
 
 def add_word_studied(data: dict = None) -> tuple[bool, dict]:
