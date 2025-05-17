@@ -18,7 +18,7 @@ class RatingsSerializer(ModelSerializer):
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['username']
+        fields = ['username', 'password']
 
     def create(self, validated_data):
         return User.objects.create(**validated_data)
@@ -35,7 +35,8 @@ class ProfileSerializer(ModelSerializer):
     def create(self, validated_data):
         user_data = User.objects.create_user(
             username=validated_data.get("user").get("username"),
-            first_name=validated_data.get("user").get("first_name"))
+            first_name=validated_data.get("user").get("first_name"),
+            password=validated_data.get("user").get("password"))
         rating_data = Ratings.objects.get(name=validated_data.get("rating").get("name"))
         post = Profile.objects.create(user=user_data, rating=rating_data)
         return post

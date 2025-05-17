@@ -1,13 +1,15 @@
-from bot.bot_app.data_fetcher import get_user_data, add_user, add_studied_word
+from bot.bot_app.data_fetcher import get_user_data, add_user, add_studied_word, get_auth_user
 from bot.bot_app.keyboards import get_actions_new_word, get_actions_all, \
     get_actions_for_learned, get_actions_for_half_learned
 
 
 async def init_user(user_id: int, username: str) -> dict | None:
-    user_data = await get_user_data(user_id)
-    if user_data:
+    token_user = await get_auth_user(user_id)
+    if token_user.get("refresh"):
+        user_data = await get_user_data(user_id)
         return user_data
     await add_user(user_id, username)
+    await get_auth_user(user_id)
     return
 
 
