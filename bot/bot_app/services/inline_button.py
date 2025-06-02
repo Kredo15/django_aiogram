@@ -1,5 +1,5 @@
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
-from bot.bot_app.data_fetcher import get_categories
+from bot_app.data_fetcher import get_categories
 
 
 async def get_inline_with_categories() -> list[InlineQueryResultArticle]:

@@ -18,7 +18,7 @@ class RatingsSerializer(ModelSerializer):
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'password']
+        fields = ['username', 'first_name', 'password']
 
     def create(self, validated_data):
         return User.objects.create(**validated_data)

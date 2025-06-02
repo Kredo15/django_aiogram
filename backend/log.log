@@ -4,3 +4,9 @@ WARNING 2025-05-09 22:10:07,858 views 12436 17016 UserData: "Передайте user"
 WARNING 2025-05-09 22:11:05,452 views 10668 13268 UserData: "Передайте user"
 WARNING 2025-05-09 22:11:59,266 views 17428 13228 UserData: "Передайте user"
 WARNING 2025-05-09 22:14:35,720 views 4620 13480 UserData: "Передайте user"
+ERROR 2025-05-19 23:17:30,539 views 5408 23148  UserData_post: {'user': {'username': [ErrorDetail(string='Пользователь с таким именем уже существует.', code='unique')]}}
+WARNING 2025-05-29 23:24:52,146 views 2904 7676  UserData_get: "Передайте user"
+WARNING 2025-05-29 23:28:49,754 views 2904 1592  UserData_get: "Передайте user"
+ERROR 2025-05-29 23:29:11,464 views 2904 9872  UserData_post: {'user': [ErrorDetail(string='Обязательное поле.', code='required')]}
+WARNING 2025-05-29 23:33:42,719 views 13616 15276  UserData_get: "Передайте user"
+WARNING 2025-05-29 23:45:36,080 views 1348 14696  UserData_get: "Передайте user"

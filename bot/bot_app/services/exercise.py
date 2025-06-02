@@ -2,9 +2,9 @@ import random
 import copy
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from bot.bot_app.app import bot
-from bot.bot_app.data_fetcher import get_new_word
-from bot.bot_app.keyboards import get_buttons_for_choose
+from bot_app.app import bot
+from bot_app.data_fetcher import get_new_word
+from bot_app.keyboards import get_buttons_for_choose
 from .user import get_actions_depending_user, add_words_after_exercise
 
 

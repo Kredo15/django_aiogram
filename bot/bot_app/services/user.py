@@ -1,5 +1,5 @@
-from bot.bot_app.data_fetcher import get_user_data, add_user, add_studied_word, get_auth_user
-from bot.bot_app.keyboards import get_actions_new_word, get_actions_all, \
+from bot_app.data_fetcher import get_user_data, add_user, add_studied_word, get_auth_user
+from bot_app.keyboards import get_actions_new_word, get_actions_all, \
     get_actions_for_learned, get_actions_for_half_learned
 
 

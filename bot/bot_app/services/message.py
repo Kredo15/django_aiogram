@@ -1,7 +1,7 @@
 from aiogram.fsm.context import FSMContext
-from bot.bot_app.services.exercise import get_word_for_learning
-from bot.bot_app.keyboards import get_button_new_word, get_button_start_study
-from bot.bot_app.app import bot
+from bot_app.services.exercise import get_word_for_learning
+from bot_app.keyboards import get_button_new_word, get_button_start_study
+from bot_app.app import bot
 
 
 async def bot_send_message_new_word(state: FSMContext,
@@ -45,3 +45,7 @@ async def send_final_message_for_study(state: FSMContext,
 async def delete_message(chat_id, curr_message, previous_message):
     await bot.delete_message(chat_id=chat_id, message_id=curr_message)
     await bot.delete_message(chat_id=chat_id, message_id=previous_message)
+
+
+async def send_reminder(chat_id, message):
+    await bot.send_message(chat_id=chat_id, text=message)

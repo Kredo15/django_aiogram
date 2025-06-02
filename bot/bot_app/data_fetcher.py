@@ -1,6 +1,5 @@
 import aiohttp
-from .local_settings import API_URL_NEW_WORD, API_URL_CATEGORIES, \
-    API_URL_STUDIED_WORD, API_URL_USER, API_AUTH_USER, API_USERS_FOR_ACTIVITY
+import os
 
 
 async def get_new_word(user_id: int,
@@ -9,7 +8,7 @@ async def get_new_word(user_id: int,
                        ):
     async with aiohttp.ClientSession() as session:
         async with session.get(
-                f'{API_URL_NEW_WORD}?user={user_id}&name_category={name_category}&pk={pk}'
+                f'{os.getenv("API_URL_NEW_WORD")}?user={user_id}&name_category={name_category}&pk={pk}'
         ) as response:
             return await response.json()
 
@@ -17,7 +16,7 @@ async def get_new_word(user_id: int,
 async def get_categories():
     async with aiohttp.ClientSession() as session:
         async with session.get(
-                f'{API_URL_CATEGORIES}'
+                f'{os.getenv("API_URL_CATEGORIES")}'
         ) as response:
             return await response.json()
 
@@ -25,7 +24,7 @@ async def get_categories():
 async def add_studied_word(data: list):
     async with aiohttp.ClientSession() as session:
         async with session.post(
-                url=f'{API_URL_STUDIED_WORD}',
+                url=f'{os.getenv("API_URL_STUDIED_WORD")}',
                 json=data
         ) as response:
             return await response.json()
@@ -34,7 +33,7 @@ async def add_studied_word(data: list):
 async def get_auth_user(user: int):
     async with aiohttp.ClientSession() as session:
         async with session.post(
-                url=f'{API_AUTH_USER}',
+                url=f'{os.getenv("API_AUTH_USER")}',
                 json={
                     "username": user,
                     "password": user
@@ -46,7 +45,7 @@ async def get_auth_user(user: int):
 async def get_user_data(username: int):
     async with aiohttp.ClientSession() as session:
         async with session.get(
-                url=f'{API_URL_USER}?user={username}'
+                url=f'{os.getenv("API_URL_USER")}?user={username}'
         ) as response:
             return await response.json()
 
@@ -54,7 +53,7 @@ async def get_user_data(username: int):
 async def add_user(user_id: int, username: str):
     async with aiohttp.ClientSession() as session:
         async with session.post(
-                url=f'{API_URL_USER}',
+                url=f'{os.getenv("API_URL_USER")}',
                 json={"user": {
                                 "username": user_id,
                                 "first_name": username,
@@ -68,6 +67,6 @@ async def add_user(user_id: int, username: str):
 async def get_user_for_activity():
     async with aiohttp.ClientSession() as session:
         async with session.get(
-                url=f'{API_USERS_FOR_ACTIVITY}'
+                url=f'{os.getenv("API_USERS_FOR_ACTIVITY")}'
         ) as response:
             return await response.json()

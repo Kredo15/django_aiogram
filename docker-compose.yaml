@@ -1,0 +1,71 @@
+services:
+  pgdb:
+    image: postgres:17
+    container_name: pgdb
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    restart: unless-stopped
+    depends_on:
+      - pgdb
+    environment:
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@pgdb:5432/${DB_NAME}
+      - POOL_MODE=transaction
+      - MAX_CLIENT_CONN=1000
+      - DEFAULT_POOL_SIZE=20
+      - MIN_POOL_SIZE=5
+      - RESERVE_POOL_SIZE=5
+      - RESERVE_POOL_TIMEOUT=5
+      - SERVER_RESET_QUERY=DISCARD ALL
+      - SERVER_CHECK_QUERY=select 1
+      - LOG_CONNECTIONS=1
+      - LOG_DISCONNECTIONS=1
+      - LOG_POOLER_ERRORS=1
+      - STATS_PERIOD=60
+      - AUTH_TYPE=scram-sha-256
+    volumes:
+      - pgbouncer-data:/var/lib/pgbouncer
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env
+    volumes:
+      - redis-data:/data
+
+  backend:
+    build: backend/.
+    container_name: backend
+    depends_on:
+      - pgbouncer
+    volumes:
+      - .:/application
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+
+  bot:
+    build: bot/.
+    container_name: bot
+    depends_on:
+      - backend
+      - redis
+    volumes:
+      - .:/application
+    env_file:
+      - .env
+
+volumes:
+  postgres-data:
+  pgbouncer-data:
+  redis-data:

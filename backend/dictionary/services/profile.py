@@ -36,5 +36,5 @@ def update_user_data(data: dict = None) -> tuple[bool, dict]:
 
 def get_users_for_activity():
     now = datetime.now()
-    users_for_activity = User.objects.filter(is_active__lt=now)
+    users_for_activity = User.objects.filter(date_joined__lt=now)
     return ProfileSerializer(users_for_activity, many=True).data
