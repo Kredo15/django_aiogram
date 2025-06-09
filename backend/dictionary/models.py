@@ -51,7 +51,7 @@ class Profile(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.PROTECT)
     number_words_studied = models.IntegerField(default=0)
     number_half_learned_words = models.IntegerField(default=0)
-    rating = models.ForeignKey('Ratings', on_delete=models.PROTECT)
+    rating = models.ForeignKey('Ratings', on_delete=models.PROTECTб, null=True, blank=True)
 
     def __str__(self):
         return f'{self.user}, {self.rating}'

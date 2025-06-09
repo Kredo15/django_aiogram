@@ -18,7 +18,6 @@ def get_user_data(user: int = None) -> dict:
 
 
 def add_user_data(data: dict = None) -> tuple[bool, dict]:
-    data["rating"] = {"name": "новичок"}
     serializer_data_user = ProfileSerializer(data=data)
     if serializer_data_user.is_valid():
         serializer_data_user.save()

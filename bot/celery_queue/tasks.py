@@ -1,14 +1,26 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from celery import Celery
 import asyncio
 from celery.schedules import crontab
 from bot_app.app import bot
 from bot_app.data_fetcher import get_user_for_activity
 
-app_celery = Celery('tasks', broker=os.getenv('REDIS_URL'), backend=os.getenv('REDIS_URL'))
+
+app_celery = Celery('tasks',
+                    broker=os.getenv('CELERY_BROKER'),
+                    backend=os.getenv('CELERY_BACKEND'),
+                    include=['celery_queue.tasks'])
 
 
-@app_celery.task(name='check_users_for_activity')
+@app_celery.task(bind=True)
+def run_async_task():
+    asyncio.run(check_users_for_activity())
+
+
 async def check_users_for_activity() -> None:
     """Отправляем напоминалку"""
     users = await get_user_for_activity()
@@ -28,7 +40,7 @@ async def send_reminder_message(chat_id: str) -> None:
 
 app_celery.conf.beat_schedule = {
     'check_overdue_tasks': {
-        'task': 'check_users_for_activity',
+        'task': 'tasks.run_async_task',
         'schedule': crontab(hour=14, minute=0)
     },
 }
